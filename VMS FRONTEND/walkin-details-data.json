@@ -1,30 +1,49 @@
 {
-  "brand": { "title": "Walk-in Registration" },
+  "brand": {
+    "title": "Walk-in Registration"
+  },
+
   "backLink": "walkin-photo.html",
+
   "steps": [
-    { "key": "photo", "label": "Photo" },
-    { "key": "details", "label": "Details" },
-    { "key": "otp", "label": "OTP" }
+    {
+      "key": "photo",
+      "label": "Photo"
+    },
+    {
+      "key": "details",
+      "label": "Details"
+    },
+    {
+      "key": "otp",
+      "label": "OTP"
+    }
   ],
+
   "currentStep": "details",
+
   "pageTitle": "Visitor details",
+
   "photo": {
     "capturedText": "Photo Captured",
     "note": "Your photo will be used for identity verification",
     "retakeText": "Retake Photo"
   },
+
   "personalInfoHeading": "Personal Information",
+
   "visitInfoHeading": "Visit Information",
+
   "labels": {
-    "firstName": "First Name",
-    "lastName": "Last Name",
+    "fullName": "Full Name",
     "email": "Email Address",
     "phone": "Phone Number",
-    "visitorType": "Visitor Type",
     "purpose": "Purpose of Visit",
     "department": "Department",
     "personToMeet": "Person to Meet"
   },
+
   "submitButtonText": "Send OTP to Email",
+
   "nextPage": "walkin-otp.html"
 }

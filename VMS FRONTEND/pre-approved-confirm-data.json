@@ -9,11 +9,26 @@
   },
   "detailsTitle": "Confirm Your Details",
   "details": [
-    { "label": "Name", "value": "Rajesh Kumar" },
-    { "label": "Host", "value": "Dr. Anjali Mehta — Dept. of CS" },
-    { "label": "Purpose", "value": "Research Collaboration Meeting" },
-    { "label": "Date", "value": "Today, 21 Jun 2026" },
-    { "label": "Slot", "value": "2:00 PM – 4:00 PM" }
+    {
+      "label": "Name",
+      "value": "Rajesh Kumar"
+    },
+    {
+      "label": "Host",
+      "value": "Dr. Anjali Mehta — Dept. of CS"
+    },
+    {
+      "label": "Purpose",
+      "value": "Research Collaboration Meeting"
+    },
+    {
+      "label": "Date",
+      "value": "Today, 21 Jun 2026"
+    },
+    {
+      "label": "Department",
+      "value": "Computer Science"
+    }
   ],
   "confirmButtonText": "Confirm Check-in",
   "nextPage": "pre-approved-success.html",

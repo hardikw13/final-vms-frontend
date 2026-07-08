@@ -12,7 +12,7 @@
     "contactNumberLabel": "Contact Number",
     "orderIdLabel": "Order ID",
     "recipientLabel": "Recipient Name",
-    "deliveryBoyLabel": "Delivery Boy Name",
+    "deliveryBoyLabel": "Delivery Person Name",
     "submitButtonText": "Submit for Verification"
   },
   "nextPage": "delivery-personnel-success.html"
