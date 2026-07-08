@@ -1,118 +1,658 @@
 // reports-analytics.js
-// Loads reports-analytics-data.json and renders the charts and stat cards, with working
-// period switching (Daily / Weekly / Monthly) and a real CSV export.
+// Connected with Express backend + Supabase PostgreSQL
+// Uses JWT from login
 
-let reportData = null;
+const API_BASE = "http://localhost:5000/api/analytics";
 
-function renderPeriodToggle(periods, active) {
-  const el = document.getElementById('periodToggle');
-  el.innerHTML = periods.map(p => `
-    <button class="period-btn${p === active ? ' active' : ''}" data-period="${p}" type="button">${p}</button>
-  `).join('');
+let currentPeriod = "weekly";
 
-  el.querySelectorAll('.period-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      el.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderWeeklyCard(btn.dataset.period);
+
+// =============================
+// JWT TOKEN
+// =============================
+
+function getToken() {
+
+    return localStorage.getItem("token");
+
+}
+
+
+
+// =============================
+// AUTHENTICATED API CALL
+// =============================
+
+async function apiFetch(url) {
+
+
+    const token = getToken();
+
+
+    if (!token) {
+
+        throw new Error("No JWT token found. Please login again.");
+
+    }
+
+
+    const response = await fetch(url, {
+
+        method: "GET",
+
+        headers: {
+
+            "Authorization": `Bearer ${token}`,
+
+            "Content-Type": "application/json"
+
+        }
+
     });
-  });
+
+
+
+    const result = await response.json();
+
+
+    console.log("API URL:", url);
+    console.log("API RESPONSE:", result);
+
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            result.message || 
+            `Request failed ${response.status}`
+        );
+
+    }
+
+
+
+    // Backend success() wrapper support
+    return result.data || result;
+
 }
 
-function renderBarChart(containerId, points, { highlightMax = false } = {}) {
-  const el = document.getElementById(containerId);
-  const max = Math.max(...points.map(p => p.value));
-  el.innerHTML = points.map(p => {
-    const heightPct = Math.max(6, Math.round((p.value / max) * 100));
-    const isPeak = highlightMax && p.value === max;
-    return `
-      <div class="bar-col">
-        <div class="bar${isPeak ? ' peak' : ''}" style="height:${heightPct}%"></div>
-        <span class="bar-label">${p.label}</span>
-      </div>
-    `;
-  }).join('');
+
+
+// =============================
+// PERIOD BUTTONS
+// =============================
+
+function renderPeriodToggle(){
+
+
+    const periods = [
+        "daily",
+        "weekly",
+        "monthly"
+    ];
+
+
+    const el = document.getElementById(
+        "periodToggle"
+    );
+
+
+    el.innerHTML = periods.map(period => `
+
+        <button 
+            class="period-btn ${period === currentPeriod ? "active":""}"
+            data-period="${period}"
+            type="button">
+
+            ${period.charAt(0).toUpperCase()+period.slice(1)}
+
+        </button>
+
+    `).join("");
+
+
+
+    el.querySelectorAll(".period-btn")
+    .forEach(btn=>{
+
+
+        btn.addEventListener(
+            "click",
+            async()=>{
+
+
+                currentPeriod =
+                btn.dataset.period;
+
+
+
+                document
+                .querySelectorAll(".period-btn")
+                .forEach(b=>
+                    b.classList.remove("active")
+                );
+
+
+                btn.classList.add("active");
+
+
+                await loadVisitorsChart();
+
+
+            }
+        );
+
+
+    });
+
+
 }
 
-function renderWeeklyCard(period) {
-  const dataset = reportData.byPeriod[period];
-  if (!dataset) return;
-  document.getElementById('weeklyCardTitle').textContent = dataset.chartTitle;
-  document.getElementById('weeklyDateRange').textContent = dataset.dateRange;
-  renderBarChart('weeklyChart', dataset.days, { highlightMax: false });
+
+
+// =============================
+// BAR CHART
+// =============================
+
+function renderBarChart(
+    id,
+    labels,
+    values,
+    highlight=false
+){
+
+
+    const el =
+    document.getElementById(id);
+
+
+
+    if(!labels || !values)
+        return;
+
+
+
+    const max =
+    Math.max(...values,1);
+
+
+
+    el.innerHTML =
+    labels.map((label,index)=>{
+
+
+        const height =
+        Math.max(
+            6,
+            Math.round(
+                (values[index]/max)*100
+            )
+        );
+
+
+
+        const peak =
+        highlight && values[index]===max
+        ? "peak"
+        :"";
+
+
+
+        return `
+
+        <div class="bar-col">
+
+            <div 
+            class="bar ${peak}"
+            style="height:${height}%">
+            </div>
+
+
+            <span class="bar-label">
+                ${label}
+            </span>
+
+        </div>
+
+        `;
+
+
+    }).join("");
+
 }
 
-function renderCategoryBars(categories) {
-  const el = document.getElementById('categoryBars');
-  el.innerHTML = categories.map(c => `
-    <div class="category-row">
-      <div class="cat-top">
-        <span class="cat-name">${c.label}</span>
-        <span class="cat-count">${c.count} (${c.percent}%)</span>
-      </div>
-      <div class="cat-track">
-        <div class="cat-fill" style="width:${c.percent}%"></div>
-      </div>
-    </div>
-  `).join('');
+
+
+// =============================
+// VISITOR CHART
+// =============================
+
+async function loadVisitorsChart(){
+
+
+    const data =
+    await apiFetch(
+        `${API_BASE}/visitors-chart?period=${currentPeriod}`
+    );
+
+
+
+    document.getElementById(
+        "weeklyCardTitle"
+    ).textContent =
+    `${currentPeriod.charAt(0).toUpperCase()+currentPeriod.slice(1)} Visitors`;
+
+
+
+    document.getElementById(
+        "weeklyDateRange"
+    ).textContent =
+    data.rangeLabel || "";
+
+
+
+    renderBarChart(
+
+        "weeklyChart",
+
+        data.labels,
+
+        data.data
+
+    );
+
+
 }
 
-function renderStatGrid(stats) {
-  const el = document.getElementById('statGrid');
-  el.innerHTML = stats.map(s => `
-    <div class="stat-box">
-      <div class="value">${s.value}</div>
-      <div class="label">${s.label}</div>
-    </div>
-  `).join('');
+
+
+
+// =============================
+// PEAK HOURS
+// =============================
+
+async function loadPeakHours(){
+
+
+    const data =
+    await apiFetch(
+        `${API_BASE}/peak-hours`
+    );
+
+
+
+    document.getElementById(
+        "peakSubtitle"
+    ).textContent =
+    "Average daily distribution";
+
+
+
+    renderBarChart(
+
+        "peakChart",
+
+        data.labels,
+
+        data.data,
+
+        true
+
+    );
+
+
+
+    document.getElementById(
+        "peakCaption"
+    ).textContent =
+    `Peak hour: ${data.peakHour} (${data.peakCount} visitors)`;
+
+
 }
 
-function exportReport() {
-  const activeBtn = document.querySelector('.period-btn.active');
-  const period = activeBtn ? activeBtn.dataset.period : reportData.activePeriod;
-  const dataset = reportData.byPeriod[period];
 
-  const rows = [
-    [`${dataset.chartTitle} Report`],
-    ['Period', period],
-    ['Date Range', dataset.dateRange],
-    [],
-    ['Label', 'Visitors'],
-    ...dataset.days.map(d => [d.label, d.value]),
-    [],
-    ['Visitor Category', 'Count', 'Percent'],
-    ...reportData.visitorCategories.map(c => [c.label, c.count, `${c.percent}%`]),
-    [],
-    ['Quick Stat', 'Value'],
-    ...reportData.quickStats.map(s => [s.label, s.value])
-  ];
-  downloadCSV(`report-${period.toLowerCase()}.csv`, rows);
-  showToast('Report exported');
+
+
+// =============================
+// VISITOR CATEGORIES
+// =============================
+
+async function loadCategories(){
+
+
+    const data =
+    await apiFetch(
+        `${API_BASE}/categories`
+    );
+
+
+
+    const el =
+    document.getElementById(
+        "categoryBars"
+    );
+
+
+
+    el.innerHTML =
+    data.categories.map(category=>{
+
+
+        return `
+
+        <div class="category-row">
+
+
+            <div class="cat-top">
+
+
+                <span class="cat-name">
+
+                    ${category.label}
+
+                </span>
+
+
+
+                <span class="cat-count">
+
+                    ${category.count}
+                    (${category.percentage}%)
+
+                </span>
+
+
+            </div>
+
+
+
+            <div class="cat-track">
+
+                <div 
+                class="cat-fill"
+                style="width:${category.percentage}%">
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+        `;
+
+
+    }).join("");
+
+
+
 }
 
-async function loadReports() {
-  try {
-    const res = await fetch('reports-analytics-data.json');
-    if (!res.ok) throw new Error(`Failed to load data: ${res.status}`);
-    reportData = await res.json();
 
-    document.getElementById('lastUpdated').textContent = `Last updated: ${reportData.lastUpdated}`;
-    renderPeriodToggle(reportData.periods, reportData.activePeriod);
-    renderWeeklyCard(reportData.activePeriod);
 
-    document.getElementById('peakSubtitle').textContent = reportData.peakHours.subtitle;
-    renderBarChart('peakChart', reportData.peakHours.hours, { highlightMax: true });
-    document.getElementById('peakCaption').textContent = reportData.peakHours.peakLabel;
 
-    renderCategoryBars(reportData.visitorCategories);
-    renderStatGrid(reportData.quickStats);
 
-    document.getElementById('exportBtn').addEventListener('click', exportReport);
-  } catch (err) {
-    console.error('Error loading reports:', err);
-    document.querySelector('.content').innerHTML =
-      '<p style="text-align:center;color:#e0413e;font-size:13px;">Couldn\'t load report data. Please try again.</p>';
-  }
+// =============================
+// STAT CARDS
+// =============================
+
+async function loadStats(){
+
+
+    const overview =
+    await apiFetch(
+        `${API_BASE}/overview`
+    );
+
+
+
+    const delivery =
+    await apiFetch(
+        `${API_BASE}/deliveries`
+    );
+
+
+
+    const stats = [
+
+
+        {
+            label:"Today Visitors",
+            value:overview.todayVisitors
+        },
+
+
+        {
+            label:"Weekly Visitors",
+            value:overview.weeklyVisitors
+        },
+
+
+        {
+            label:"Monthly Visitors",
+            value:overview.monthlyVisitors
+        },
+
+
+        {
+            label:"Departments",
+            value:overview.totalDepartments
+        },
+
+
+        {
+            label:"Hosts",
+            value:overview.totalHosts
+        },
+
+
+        {
+            label:"Deliveries",
+            value:delivery.totalDeliveries
+        }
+
+
+    ];
+
+
+
+    document.getElementById(
+        "statGrid"
+    ).innerHTML =
+
+
+    stats.map(stat=>`
+
+        <div class="stat-box">
+
+
+            <div class="value">
+
+                ${stat.value ?? 0}
+
+            </div>
+
+
+            <div class="label">
+
+                ${stat.label}
+
+            </div>
+
+
+        </div>
+
+
+    `).join("");
+
+
+
 }
 
-document.addEventListener('DOMContentLoaded', loadReports);
+
+
+
+
+// =============================
+// EXPORT CSV
+// =============================
+
+async function exportReport(){
+
+
+    const token =
+    getToken();
+
+
+
+    const response =
+    await fetch(
+
+        `${API_BASE}/export`,
+
+        {
+
+            headers:{
+
+                "Authorization":
+                `Bearer ${token}`
+
+            }
+
+        }
+
+    );
+
+
+
+    if(!response.ok){
+
+        alert("Export failed");
+
+        return;
+
+    }
+
+
+
+    const blob =
+    await response.blob();
+
+
+
+    const url =
+    window.URL.createObjectURL(blob);
+
+
+
+    const a =
+    document.createElement("a");
+
+
+
+    a.href=url;
+
+    a.download =
+    "visits_report.csv";
+
+
+    a.click();
+
+
+
+    window.URL.revokeObjectURL(url);
+
+
+
+}
+
+
+
+
+// =============================
+// LOAD PAGE
+// =============================
+
+async function loadReports(){
+
+
+    try{
+
+
+        renderPeriodToggle();
+
+
+
+        await Promise.all([
+
+
+            loadVisitorsChart(),
+
+            loadPeakHours(),
+
+            loadCategories(),
+
+            loadStats()
+
+
+        ]);
+
+
+
+        document.getElementById(
+            "lastUpdated"
+        ).textContent =
+
+        `Last updated: ${new Date().toLocaleString()}`;
+
+
+
+        document.getElementById(
+            "exportBtn"
+        )
+        .addEventListener(
+            "click",
+            exportReport
+        );
+
+
+
+    }
+    catch(error){
+
+
+        console.error(
+            "Analytics Error:",
+            error
+        );
+
+
+
+        document.querySelector(
+            ".content"
+        ).innerHTML = `
+
+        <p style="
+        color:red;
+        text-align:center;
+        padding:20px">
+
+        Failed loading analytics.<br>
+        ${error.message}
+
+        </p>
+
+        `;
+
+
+    }
+
+
+}
+
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadReports
+);

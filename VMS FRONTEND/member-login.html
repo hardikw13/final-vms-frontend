@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EduGate VMS | Member Sign In</title>
-<link rel="stylesheet" href="member-login.css">
+<link rel="stylesheet" href="css/member-login.css">
 </head>
 <body>
 
@@ -25,8 +25,14 @@
       <form class="login-card" id="loginForm">
 
         <div class="field">
-          <label for="employeeId">Employee ID <span class="required">*</span></label>
-          <input type="text" id="employeeId" placeholder="EMP-20240001" autocomplete="off" required>
+          <label for="email">Email <span class="required">*</span></label>
+<input
+    type="email"
+    id="email"
+    placeholder="admin@example.com"
+    autocomplete="email"
+    required
+>
         </div>
 
         <div class="field">
