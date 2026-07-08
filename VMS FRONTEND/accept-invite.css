@@ -1,0 +1,116 @@
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --bg:#f5f7fb;
+    --card:#ffffff;
+    --border:#dbe3ef;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --radius:14px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Segoe UI,Arial,sans-serif;
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:100%;
+    max-width:420px;
+    padding:20px;
+}
+
+.card{
+    background:var(--card);
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+}
+
+.card h2{
+    text-align:center;
+    margin-bottom:10px;
+    color:var(--text);
+}
+
+#userInfo{
+    text-align:center;
+    color:var(--muted);
+    margin-bottom:25px;
+    font-size:14px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:18px;
+}
+
+.form-group label{
+    font-size:14px;
+    margin-bottom:6px;
+    color:var(--text);
+    font-weight:600;
+}
+
+.form-group input{
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+    transition:.2s;
+}
+
+.form-group input:focus{
+    border-color:var(--primary);
+}
+
+.form-group input[readonly]{
+    background:#f3f4f6;
+    cursor:not-allowed;
+}
+
+button{
+    width:100%;
+    border:none;
+    padding:13px;
+    border-radius:10px;
+    background:var(--primary);
+    color:white;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    background:var(--primary-dark);
+}
+
+#message{
+    margin-top:18px;
+    text-align:center;
+    font-size:14px;
+    font-weight:600;
+}
+
+.success{
+    color:var(--success);
+}
+
+.error{
+    color:var(--danger);
+}

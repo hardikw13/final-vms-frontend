@@ -327,7 +327,7 @@ href:"#"
 label:"Departments",
 sub:"Settings",
 icon:"departments",
-href:"#"
+href:"departments.html"
 },
 
 
