@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Security | Details</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="security-common.css" />
+<link rel="stylesheet" href="security-details.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="topnav">
+    <a class="back-link" href="security-dashboard.html">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Details
+    </a>
+    <span></span>
+  </div>
+
+  <div class="page-body">
+    <div class="avatar-hero" id="avatarHero"></div>
+
+    <div class="card info-card">
+      <div class="info-grid">
+        <div>
+          <div class="k">Name</div>
+          <div class="v" id="detName">—</div>
+        </div>
+        <div>
+          <div class="k">Phone number</div>
+          <div class="v" id="detPhone">—</div>
+        </div>
+      </div>
+      <div class="info-grid" id="extraGrid"></div>
+    </div>
+
+    <button class="btn btn-primary" id="primaryActionBtn" style="margin-top:22px;">Sign Out</button>
+    <a class="btn btn-ghost" id="backLink" href="security-dashboard.html" style="margin-top:8px;text-align:center;justify-content:center;">Back to home page</a>
+  </div>
+</div>
+
+<script src="security-common.js"></script>
+<script src="security-details.js"></script>
+</body>
+</html>

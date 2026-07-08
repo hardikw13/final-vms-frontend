@@ -1,0 +1,16 @@
+{
+  "pageTitle": "Member Sign In",
+  "pageSubtitle": "Use your Employee Id and Password",
+  "employeeIdPlaceholder": "EMP-20240001",
+  "demoLabel": "Demo: select your role",
+  "roles": [
+    { "key": "security", "label": "Security" },
+    { "key": "host", "label": "Host" },
+    { "key": "admin", "label": "Admin" }
+  ],
+  "signInText": "Sign In",
+  "hintText": "Role is automatically detected from Employee ID",
+  "backLinkText": "Back to Home",
+  "backLink": "welcome.html",
+  "homeLink": "welcome.html"
+}

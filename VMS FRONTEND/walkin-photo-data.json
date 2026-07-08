@@ -1,0 +1,21 @@
+{
+  "brand": { "title": "Walk-in Registration" },
+  "backLink": "select-visitor-type.html",
+  "steps": [
+    { "key": "photo", "label": "Photo" },
+    { "key": "details", "label": "Details" },
+    { "key": "otp", "label": "OTP" }
+  ],
+  "currentStep": "photo",
+  "face": {
+    "title": "Face Capture",
+    "subtitle": "Look directly at the camera for identity verification"
+  },
+  "tips": [
+    { "icon": "sun", "label": "Good Lighting" },
+    { "icon": "glasses", "label": "No hat or sunglasses" },
+    { "icon": "person", "label": "Look straight" }
+  ],
+  "captureButtonText": "Capture Photo",
+  "nextPage": "walkin-details.html"
+}

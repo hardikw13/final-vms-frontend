@@ -1,0 +1,36 @@
+{
+  "brand": {
+    "name": "EduGate VMS",
+    "tagline": "Select Visitor Type"
+  },
+  "heading": {
+    "title": "How are you visiting today?",
+    "subtitle": "Choose your visitor category to continue"
+  },
+  "types": [
+    {
+      "icon": "qr",
+      "badgeText": "Fastest Entry",
+      "badgeColor": "green",
+      "title": "Pre-Approved Visitor",
+      "description": "You have a QR code from a previous invitation",
+      "link": "pre-approved-scan.html"
+    },
+    {
+      "icon": "camera",
+      "badgeText": "Email OTP",
+      "badgeColor": "violet",
+      "title": "Walk-in Visitor",
+      "description": "First-time or unscheduled visit — face capture & OTP verification required",
+      "link": "walkin-photo.html"
+    },
+    {
+      "icon": "box",
+      "badgeText": "Order Scan",
+      "badgeColor": "blue",
+      "title": "Delivery Personnel",
+      "description": "Upload or scan your delivery order ID for quick processing",
+      "link": "delivery-personnel.html"
+    }
+  ]
+}

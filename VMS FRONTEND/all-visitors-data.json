@@ -1,0 +1,41 @@
+{
+  "pageTitle": "All Visitors",
+  "unreadNotifications": 3,
+  "visitors": [
+    {
+      "id": "V001",
+      "name": "Priya Sharma",
+      "status": "Inside",
+      "hostLine": "Dr. Anjali Mehta · Parent Meeting · 09:14 AM",
+      "category": "Pre-Approved"
+    },
+    {
+      "id": "V002",
+      "name": "Rajan Patel",
+      "status": "Inside",
+      "hostLine": "Walk-in · Prof. Suresh Kumar · Job Interview",
+      "category": "Walk-In"
+    },
+    {
+      "id": "V003",
+      "name": "Kavita Nair",
+      "status": "Checked Out",
+      "hostLine": "Pre-Approved · Mr. Arun Das · Guest Lecture · 10:02 AM",
+      "category": "Pre-Approved"
+    },
+    {
+      "id": "V004",
+      "name": "Amit Singh",
+      "status": "Inside",
+      "hostLine": "Delivery · Security · Amazon Delivery · 10:30 AM",
+      "category": "Delivery"
+    },
+    {
+      "id": "V005",
+      "name": "Deepa Rao",
+      "status": "Pending",
+      "hostLine": "Parent · Dr. Priya Verma · Student Pickup · 11:05 AM",
+      "category": "Walk-In"
+    }
+  ]
+}

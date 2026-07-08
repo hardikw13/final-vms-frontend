@@ -1,0 +1,46 @@
+{
+  "user": {
+    "name": "Admin Dashboard",
+    "initial": "A",
+    "unreadNotifications": 3
+  },
+  "stats": {
+    "totalVisitorsToday": 1284,
+    "changePercent": 12,
+    "checkedIn": 37
+  },
+  "quickAccess": [
+    { "id": "users", "label": "Users", "sub": "Manage staff", "icon": "users", "href": "manage-users.html" },
+    { "id": "visitors", "label": "Visitors", "sub": "All records", "icon": "visitors", "href": "all-visitors.html" },
+    { "id": "reports", "label": "Reports", "sub": "Analytics", "icon": "reports", "href": "reports-analytics.html" },
+    { "id": "notifications", "label": "Notifications", "sub": "Alerts", "icon": "bell", "href": "notifications.html" },
+    { "id": "departments", "label": "Departments", "sub": "Settings", "icon": "departments", "href": "departments.html" },
+    { "id": "entry-logs", "label": "Entry Logs", "sub": "Audit trail", "icon": "logs", "href": "entry-logs.html" }
+  ],
+  "recentActivity": [
+    {
+      "id": "act-1",
+      "initials": "PS",
+      "name": "Priya Sharma",
+      "hostLine": "Host: Dr. Anjali Mehta",
+      "tags": ["Pre-Approved", "Inside"],
+      "time": "09:14 AM"
+    },
+    {
+      "id": "act-2",
+      "initials": "RP",
+      "name": "Rajan Patel",
+      "hostLine": "Host: Prof. Suresh Kumar",
+      "tags": ["Walk-In", "Inside"],
+      "time": "09:47 AM"
+    },
+    {
+      "id": "act-3",
+      "initials": "KN",
+      "name": "Kavita Nair",
+      "hostLine": "Host: Mr. Arun Das",
+      "tags": ["Pre-Approved", "Checked Out"],
+      "time": "10:02 AM"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "departments": [
+    { "id": "D1", "name": "Computer Science", "staffCount": 18, "building": "Tech Block A" },
+    { "id": "D2", "name": "Mechanical Engineering", "staffCount": 14, "building": "Tech Block B" },
+    { "id": "D3", "name": "Administration", "staffCount": 9, "building": "Main Building" },
+    { "id": "D4", "name": "Security Office", "staffCount": 12, "building": "Gate House" },
+    { "id": "D5", "name": "Library Services", "staffCount": 6, "building": "Central Library" },
+    { "id": "D6", "name": "Student Affairs", "staffCount": 8, "building": "Main Building" }
+  ]
+}

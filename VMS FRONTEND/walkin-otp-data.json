@@ -1,0 +1,20 @@
+{
+  "brand": { "title": "Walk-in Registration" },
+  "steps": [
+    { "key": "photo", "label": "Photo" },
+    { "key": "details", "label": "Details" },
+    { "key": "otp", "label": "OTP" }
+  ],
+  "currentStep": "otp",
+  "title": "Verify Your Email",
+  "subtitlePrefix": "We've sent a 6 digit verification code to",
+  "changeEmailText": "Change Email",
+  "changeEmailLink": "walkin-details.html",
+  "timerLabel": "Code expires in",
+  "timerSeconds": 299,
+  "verifyButtonText": "Verify OTP",
+  "resendPrompt": "Didn't receive the code?",
+  "resendButtonText": "Resend OTP",
+  "securityNoteText": "For security, do not share this code with anyone",
+  "nextPage": "walkin-success.html"
+}

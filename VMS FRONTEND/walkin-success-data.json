@@ -1,0 +1,21 @@
+{
+  "brand": { "title": "Walk-in Registration" },
+  "steps": [
+    { "key": "photo", "label": "Photo" },
+    { "key": "details", "label": "Details" },
+    { "key": "otp", "label": "OTP" }
+  ],
+  "success": {
+    "title": "Registration Successful",
+    "subtitle": "Your registration is complete. Present the visitor pass at the security desk for entry."
+  },
+  "pass": {
+    "label": "Visitor Pass",
+    "badge": "Walk-in Visitor",
+    "qrCaption": "Show this QR at the security gate to check in"
+  },
+  "notifiedTextTemplate": "{department} department head has been notified",
+  "validityNote": "This pass is valid only for today",
+  "doneButtonText": "Done · Return to home",
+  "homeLink": "welcome.html"
+}

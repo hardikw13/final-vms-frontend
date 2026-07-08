@@ -1,0 +1,25 @@
+{
+  "brand": { "title": "Host Dashboard", "rolePill": "Host" },
+  "hostSubtitle": "Dr. Anjali Mehta, Dept. of CS",
+  "stats": [
+    { "key": "visitors", "label": "Today's Visitors", "value": 4, "color": "blue" },
+    { "key": "approved", "label": "Approved Today", "value": 3, "color": "green" }
+  ],
+  "tabs": {
+    "today": "Today's Visitors",
+    "notifications": "Notifications"
+  },
+  "todaysVisitors": [
+    { "name": "Priya Sharma", "category": "Parent Meeting — 09:14 AM", "status": "inside" },
+    { "name": "Rajan Patel", "category": "Job Interview — 09:47 AM", "status": "inside" },
+    { "name": "Kavita Nair", "category": "Guest Lecture — 10:02 AM", "status": "checked-out" },
+    { "name": "Amit Singh", "category": "Delivery — Amazon — 10:30 AM", "status": "inside" }
+  ],
+  "notifications": [
+    { "type": "success", "text": "Rajan Patel has checked in for your Job Interview appointment", "time": "09:47 AM" },
+    { "type": "success", "text": "Amit Singh has checked in for Delivery — Amazon", "time": "10:30 AM" },
+    { "type": "info", "text": "Kavita Nair checked out after Guest Lecture", "time": "10:48 AM" }
+  ],
+  "signOutText": "Sign Out",
+  "signOutLink": "member-login.html"
+}

@@ -1,0 +1,289 @@
+/* ===== Design tokens ===== */
+:root {
+  --brand-blue: #3346e8;
+  --brand-blue-dark: #24339e;
+  --brand-blue-darker: #1b2778;
+  --surface: #ffffff;
+  --ink: #14183a;
+  --muted: #6b7280;
+  --muted-light: rgba(255, 255, 255, 0.72);
+  --bg-page: #eef1f7;
+
+  --icon-gray-bg: #eef0f5;
+  --icon-gray-fg: #3b4257;
+  --icon-violet-bg: #f1e9fb;
+  --icon-violet-fg: #7c4fd6;
+  --icon-teal-bg: #e2f6f0;
+  --icon-teal-fg: #1a9c7a;
+  --icon-amber-bg: #fdf1dd;
+  --icon-amber-fg: #b9790f;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg-page);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+img, svg { display: block; }
+
+/* ===== App frame: fluid on phones, becomes a centered card on larger screens ===== */
+.app-frame {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Header (single logo instance) ===== */
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(18px, 5vw, 26px) clamp(20px, 6vw, 30px) 4px;
+}
+
+.brand-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--surface);
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-size: clamp(17px, 4vw, 19px);
+  font-weight: 700;
+  color: var(--surface);
+  letter-spacing: 0.2px;
+}
+
+.brand-text p {
+  margin: 1px 0 0;
+  font-size: clamp(11.5px, 3vw, 12.5px);
+  color: var(--muted-light);
+}
+
+/* ===== Content wrapper ===== */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(28px, 8vh, 56px);
+  padding: 4px clamp(20px, 6vw, 30px) clamp(28px, 6vw, 36px);
+}
+
+/* ===== Hero ===== */
+.hero {
+  text-align: center;
+  padding: clamp(20px, 5vw, 30px) 8px clamp(24px, 6vw, 34px);
+}
+
+.hero-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--surface);
+}
+
+.hero h2 {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 6vw, 27px);
+  font-weight: 800;
+  color: var(--surface);
+}
+
+.hero p {
+  margin: 0 auto;
+  max-width: 320px;
+  font-size: clamp(13px, 3.4vw, 14.5px);
+  line-height: 1.5;
+  color: var(--muted-light);
+}
+
+/* ===== Action cards ===== */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 380px) {
+  .actions { grid-template-columns: 1fr; }
+}
+
+.action-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 220px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-card:hover,
+.action-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(10, 15, 60, 0.18);
+  outline: none;
+}
+
+.action-card.dark {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.action-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  background: var(--icon-gray-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.action-card.dark .action-icon {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.action-card h4 {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.action-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  flex: 1;
+}
+
+.action-card.dark p {
+  color: var(--muted-light);
+}
+
+.action-card .cta {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand-blue);
+}
+
+.action-card.dark .cta {
+  color: var(--surface);
+}
+
+/* ===== Trust strip (fills the space left by the removed feature row) ===== */
+.trust-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-lg);
+  padding: clamp(16px, 4.5vw, 20px);
+}
+
+.trust-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trust-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--surface);
+}
+
+.trust-strip p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted-light);
+}
+
+/* ===== Responsive breakpoints ===== */
+
+/* Tablet and up: app becomes a centered card, no longer edge-to-edge */
+@media (min-width: 640px) {
+  body { padding: 40px 16px; }
+  .app-frame {
+    min-height: 800px;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(15, 22, 70, 0.28);
+    margin: auto;
+  }
+}
+
+/* Laptop / desktop: slightly roomier card + soft page backdrop pattern */
+@media (min-width: 1024px) {
+  html, body {
+    background: radial-gradient(circle at 20% 20%, #e3e8f7 0%, var(--bg-page) 55%);
+  }
+  .app-frame { max-width: 480px; }
+}
+
+/* Large desktop: keep the app card from stretching too tall/wide */
+@media (min-width: 1440px) {
+  .app-frame { min-height: 860px; }
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EduGate VMS | Member Sign In</title>
+<link rel="stylesheet" href="member-login.css">
+</head>
+<body>
+
+  <div class="app-frame">
+
+    <main class="content">
+
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+
+      <h1 id="pageTitle">Member Sign In</h1>
+      <p id="pageSubtitle">Use your Employee Id and Password</p>
+
+      <form class="login-card" id="loginForm">
+
+        <div class="field">
+          <label for="employeeId">Employee ID <span class="required">*</span></label>
+          <input type="text" id="employeeId" placeholder="EMP-20240001" autocomplete="off" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Password <span class="required">*</span></label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+
+        <p class="demo-label" id="demoLabel">Demo: select your role</p>
+
+        <div class="role-grid" id="roleGrid">
+          <!-- role buttons injected by member-login.js -->
+        </div>
+
+        <button class="btn-signin" id="signInBtn" type="submit" disabled>Sign In</button>
+
+        <p class="hint-text" id="hintText">Role is automatically detected from Employee ID</p>
+
+      </form>
+
+      <a class="back-link" id="backLink" href="welcome.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Back to Home</span>
+      </a>
+
+    </main>
+
+  </div>
+
+  <script src="member-login.js"></script>
+</body>
+</html>

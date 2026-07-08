@@ -1,0 +1,21 @@
+/* security-pending-approvals.css */
+
+.pending-card{
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.pending-card:last-child{ border-bottom: none; }
+
+.pending-card .top-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pending-card .row-sub{ margin-top: 3px; }
+
+.pending-card .btn-row{
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.pending-card .btn-row .btn{ flex: 1; }

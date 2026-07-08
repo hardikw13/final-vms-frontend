@@ -1,0 +1,16 @@
+{
+  "brand": {
+    "title": "Pre Approved Visitor"
+  },
+  "backLink": "select-visitor-type.html",
+  "scan": {
+    "title": "Scan Your QR Code",
+    "subtitle": "Position your invitation QR code in front of the camera",
+    "scanningLabel": "Scanning",
+    "buttonText": "Simulate QR Scan",
+    "nextPage": "pre-approved-confirm.html"
+  },
+  "altText": "Don't have a QR code?",
+  "altLinkText": "Register as Walk-in",
+  "altLink": "walkin-photo.html"
+}

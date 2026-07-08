@@ -1,0 +1,46 @@
+{
+  "pageTitle": "Manage Users",
+  "unreadNotifications": 3,
+  "users": [
+    {
+      "id": "U-FAC-8821",
+      "name": "Dr. Anjali Mehta",
+      "role": "FACULTY",
+      "department": "Computer Science",
+      "email": "anjali.mehta@uni.edu",
+      "status": "Active"
+    },
+    {
+      "id": "U-FAC-7734",
+      "name": "Prof. Suresh Kumar",
+      "role": "FACULTY",
+      "department": "Mechanical Eng.",
+      "email": "suresh.k@uni.edu",
+      "status": "Active"
+    },
+    {
+      "id": "U-REC-102",
+      "name": "Riya Sharma",
+      "role": "RECEPTION",
+      "department": "Administration",
+      "email": "riya.s@uni.edu",
+      "status": "Active"
+    },
+    {
+      "id": "U-SEC-550",
+      "name": "Amit Singh",
+      "role": "SECURITY",
+      "department": "Security Office",
+      "email": "amit.s@uni.edu",
+      "status": "Active"
+    },
+    {
+      "id": "U-ADM-003",
+      "name": "Neha Gupta",
+      "role": "ADMIN",
+      "department": "Administration",
+      "email": "neha.g@uni.edu",
+      "status": "Active"
+    }
+  ]
+}

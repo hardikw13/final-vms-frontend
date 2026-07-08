@@ -1,0 +1,17 @@
+{
+  "guard": { "name": "Rajat Kumar", "phone": "9990069090", "role": "Security Guard" },
+  "pending": [
+    { "id": "pnd_seed1", "name": "Priya Sharma", "phone": "9876543210", "purpose": "Business Meeting", "hostName": "Aditi Rao", "type": "visitor", "requestedAt": "10:12 AM" },
+    { "id": "pnd_seed2", "name": "Amit Singh", "phone": "9812345678", "purpose": "Interview", "hostName": "Karan Mehta", "type": "visitor", "requestedAt": "10:24 AM" }
+  ],
+  "inside": [
+    { "id": "in_seed1", "name": "Priya Sharma", "phone": "9876543210", "purpose": "Business Meeting", "hostName": "Aditi Rao", "type": "visitor", "checkInTime": "09:02 AM" },
+    { "id": "in_seed2", "name": "Kavita Nair", "phone": "9845098450", "purpose": "Vendor Visit", "hostName": "Rohan Das", "type": "visitor", "checkInTime": "09:20 AM" }
+  ],
+  "expected": [
+    { "id": "exp_seed1", "name": "Rajat Patel", "phone": "9900112233", "purpose": "Project Review", "hostName": "Neha Gupta", "expectedTime": "02:00 PM" }
+  ],
+  "checkedOut": [
+    { "id": "out_seed1", "name": "Kavita Nair", "phone": "9845098450", "purpose": "Delivery Drop", "hostName": "Front Desk", "checkInTime": "08:10 AM", "checkOutTime": "08:40 AM" }
+  ]
+}

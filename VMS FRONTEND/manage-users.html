@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manage Users · University Visitor Management System</title>
+<link rel="stylesheet" href="manage-users.css" />
+<link rel="stylesheet" href="common.css" />
+</head>
+<body>
+  <div class="phone">
+
+    <header class="topbar">
+      <span class="topbar-title">Manage Users</span>
+      <div class="topbar-right">
+        <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2h-4.4A2.2 2.2 0 0 0 12 22Zm7-6.2v-5a7 7 0 0 0-5.6-6.86V3a1.4 1.4 0 1 0-2.8 0v.94A7 7 0 0 0 5 15.8L3.5 17.3v.9H20.5v-.9L19 15.8Z" fill="currentColor"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab" href="admin-dashboard.html">Overview</a>
+      <a class="tab" href="all-visitors.html">Visitors</a>
+      <a class="tab" href="reports-analytics.html">Reports</a>
+      <a class="tab active" href="manage-users.html">Users</a>
+    </nav>
+
+    <main class="content">
+
+      <button class="add-user-btn" id="addUserBtn" type="button">
+        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2Z" fill="currentColor"/></svg>
+        Add User
+      </button>
+
+      <div class="search-row">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" width="16" height="16" class="search-icon"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z" fill="currentColor"/></svg>
+          <input type="text" id="searchInput" placeholder="Search staff, admin, or contractor..." aria-label="Search users" />
+        </div>
+        <button class="square-btn" id="filterBtn" aria-label="Filter">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 5h16v2l-6 7v5l-4-2v-3L4 7Z" fill="currentColor"/></svg>
+        </button>
+      </div>
+
+      <div class="filter-panel" id="filterPanel">
+        <div>
+          <div class="filter-group-title">Role</div>
+          <div class="filter-chip-row" id="roleChips"></div>
+        </div>
+        <div>
+          <div class="filter-group-title">Status</div>
+          <div class="filter-chip-row" id="statusChips"></div>
+        </div>
+        <div class="filter-actions">
+          <button class="filter-clear" id="filterClearBtn" type="button">Clear</button>
+          <button class="filter-apply" id="filterApplyBtn" type="button">Apply</button>
+        </div>
+      </div>
+
+      <div class="user-list" id="userList">
+        <!-- filled by JS -->
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <span>·</span>
+        <a href="#">Terms of Service</a>
+        <span>·</span>
+        <a href="#">Help Center</a>
+      </div>
+      <a href="member-login.html" class="sign-out">Sign Out</a>
+      <p class="copyright">© 2026 University Visitor Management System</p>
+    </footer>
+
+  </div>
+
+<script src="common.js"></script>
+<script src="manage-users.js"></script>
+</body>
+</html>

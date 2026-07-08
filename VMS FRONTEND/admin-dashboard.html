@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard · University Visitor Management System</title>
+<link rel="stylesheet" href="admin-dashboard.css" />
+<link rel="stylesheet" href="common.css" />
+</head>
+<body>
+  <div class="phone">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="logo-badge">A</div>
+        <span class="topbar-title">Admin Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2h-4.4A2.2 2.2 0 0 0 12 22Zm7-6.2v-5a7 7 0 0 0-5.6-6.86V3a1.4 1.4 0 1 0-2.8 0v.94A7 7 0 0 0 5 15.8L3.5 17.3v.9H20.5v-.9L19 15.8Z" fill="currentColor"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+        <div class="avatar" id="avatarInitial">A</div>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" width="16" height="16" class="search-icon"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z" fill="currentColor"/></svg>
+      <input type="text" placeholder="Search visitors, departments..." aria-label="Search" />
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab active" href="admin-dashboard.html">Overview</a>
+      <a class="tab" href="all-visitors.html">Visitors</a>
+      <a class="tab" href="reports-analytics.html">Reports</a>
+      <a class="tab" href="manage-users.html">Users</a>
+    </nav>
+
+    <main class="content">
+
+      <!-- Stat cards -->
+      <section class="stat-cards" id="statCards" aria-label="Key stats">
+        <!-- filled by JS -->
+      </section>
+
+      <!-- Quick access -->
+      <section class="quick-access">
+        <h2 class="section-title">Quick Access</h2>
+        <div class="quick-grid" id="quickGrid">
+          <!-- filled by JS -->
+        </div>
+      </section>
+
+      <!-- Recent activity -->
+      <section class="recent-activity">
+        <div class="section-title-row">
+          <h2 class="section-title">Recent Activity</h2>
+          <span class="live-badge"><span class="live-dot"></span>Live Updates</span>
+        </div>
+        <div class="activity-list" id="activityList">
+          <!-- filled by JS -->
+        </div>
+        <a href="all-visitors.html" class="view-all-link">View All Activity <span aria-hidden="true">→</span></a>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <span>·</span>
+        <a href="#">Terms of Service</a>
+        <span>·</span>
+        <a href="#">Help Center</a>
+      </div>
+      <a href="member-login.html" class="sign-out">Sign Out</a>
+      <p class="copyright">© 2026 University Visitor Management System</p>
+    </footer>
+
+  </div>
+
+<script src="common.js"></script>
+<script src="admin-dashboard.js"></script>
+</body>
+</html>

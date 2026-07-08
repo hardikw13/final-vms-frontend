@@ -1,0 +1,44 @@
+/* security-approval-detail.css */
+
+.detail-card{
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 26px 20px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.detail-avatar{
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+}
+
+.detail-name{
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+}
+.detail-purpose{ color: var(--ink-soft); font-size: 13.5px; margin-top: 2px; }
+
+.detail-info{
+  margin: 22px 0 4px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.info-row{ display: flex; justify-content: space-between; font-size: 13.5px; }
+.info-row .k{ color: var(--ink-soft); }
+.info-row .v{ font-weight: 600; }
+
+.btn-row{ display: flex; gap: 12px; margin-top: 26px; }
+.btn-row .btn{ flex: 1; padding: 16px; font-size: 15px; }

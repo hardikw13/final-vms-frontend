@@ -1,0 +1,19 @@
+{
+  "brand": {
+    "title": "Delivery Personnel"
+  },
+  "backLink": "select-visitor-type.html",
+  "heading": {
+    "title": "Delivery Check-in",
+    "subtitle": "Enter the delivery details below for quick processing"
+  },
+  "form": {
+    "companyNameLabel": "Company Name",
+    "contactNumberLabel": "Contact Number",
+    "orderIdLabel": "Order ID",
+    "recipientLabel": "Recipient Name",
+    "deliveryBoyLabel": "Delivery Boy Name",
+    "submitButtonText": "Submit for Verification"
+  },
+  "nextPage": "delivery-personnel-success.html"
+}

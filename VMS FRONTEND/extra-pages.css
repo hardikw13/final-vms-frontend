@@ -1,0 +1,109 @@
+/* extra-pages.css — Notifications / Departments / Entry Logs list pages.
+   Reuses tokens & topbar/tabs/footer rules from admin-dashboard.css. */
+
+.page-heading{font-size:18px;font-weight:800;margin:2px 0 0;}
+.page-sub{font-size:12px;color:var(--ink-soft);margin:2px 0 4px;}
+.mark-all-page-btn{
+  align-self:flex-start;
+  background:var(--blue-light);
+  color:var(--blue-dark);
+  border:none;
+  padding:8px 14px;
+  border-radius:var(--radius-sm);
+  font-size:12px;font-weight:700;
+  cursor:pointer;
+}
+.mark-all-page-btn:hover{background:#dde8fd;}
+
+.list-card{
+  background:var(--card);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+/* Notifications */
+.notif-list-item{
+  display:flex;gap:10px;
+  padding:13px 14px;
+  border-bottom:1px solid var(--line);
+}
+.notif-list-item:last-child{border-bottom:none;}
+.notif-list-item.unread{background:var(--blue-light);}
+.notif-list-item .dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px;}
+.notif-list-item.read .dot{background:transparent;}
+.notif-list-body{flex:1;}
+.notif-list-title{font-size:13px;font-weight:700;}
+.notif-list-desc{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.notif-list-time{font-size:11px;color:var(--ink-faint);margin-top:5px;}
+.mark-read-btn{
+  align-self:flex-start;
+  background:none;border:none;color:var(--blue);
+  font-size:11px;font-weight:700;cursor:pointer;padding:0;white-space:nowrap;
+}
+
+/* Departments */
+.dept-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;
+  border-bottom:1px solid var(--line);
+}
+.dept-item:last-child{border-bottom:none;}
+.dept-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--blue-light);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.dept-body{flex:1;min-width:0;}
+.dept-name{font-size:13px;font-weight:700;}
+.dept-meta{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.dept-count{font-size:12px;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+
+/* Entry logs */
+.log-item{
+  display:flex;gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+}
+.log-item:last-child{border-bottom:none;}
+.log-icon{
+  width:30px;height:30px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.log-icon.entry{background:var(--green-light);color:var(--green);}
+.log-icon.exit{background:var(--orange-light);color:var(--orange);}
+.log-body{flex:1;min-width:0;}
+.log-title{font-size:12.5px;font-weight:700;}
+.log-meta{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.log-time{font-size:11px;color:var(--ink-faint);white-space:nowrap;}
+
+.empty-state{padding:32px 16px;text-align:center;font-size:12.5px;color:var(--ink-faint);}
+
+/* Shared search row / icon buttons (used on Notifications, Departments, Entry Logs) */
+.search-row{display:flex;gap:8px;}
+.search-wrap{position:relative;flex:1;margin:0;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);}
+.search-wrap input{
+  width:100%;
+  padding:10px 12px 10px 34px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:var(--card);
+  font-size:13px;
+  color:var(--ink);
+  outline:none;
+}
+.search-wrap input:focus{border-color:var(--blue);}
+.search-wrap input::placeholder{color:var(--ink-faint);}
+.square-btn{
+  width:38px;height:38px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.square-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+.square-btn:hover{opacity:.9;}

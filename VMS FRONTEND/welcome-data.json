@@ -1,0 +1,29 @@
+{
+  "brand": {
+    "name": "EduGate VMS",
+    "tagline": "Visitor Management System"
+  },
+  "hero": {
+    "title": "Welcome to EduGate",
+    "subtitle": "Secure, smart visitor management for modern educational institutions"
+  },
+  "actions": [
+    {
+      "icon": "visitor",
+      "title": "Visitor Registration",
+      "description": "Register your visit, scan QR or walk in",
+      "cta": "Get Started",
+      "link": "select-visitor-type.html",
+      "style": "light"
+    },
+    {
+      "icon": "login",
+      "title": "Member Login",
+      "description": "Staff, faculty & security access",
+      "cta": "Sign In",
+      "link": "member-login.html",
+      "style": "dark"
+    }
+  ],
+  "trustNote": "Trusted by educational institutions across India for secure, monitored campus entry"
+}

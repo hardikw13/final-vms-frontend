@@ -1,0 +1,245 @@
+/* ===== Design tokens (kept consistent with the rest of EduGate VMS) ===== */
+:root {
+  --brand-blue: #3346e8;
+  --brand-blue-dark: #24339e;
+  --surface: #ffffff;
+  --ink: #14183a;
+  --muted: #6b7280;
+  --muted-light: rgba(255, 255, 255, 0.72);
+  --bg-page: #eef1f7;
+  --badge-green-bg: #e3f6ea;
+  --badge-green-fg: #1c8a4c;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg-page);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { display: flex; justify-content: center; }
+svg { display: block; }
+
+/* ===== App frame ===== */
+.app-frame {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Top bar ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  padding: clamp(14px, 4vw, 18px) clamp(16px, 5vw, 24px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.icon-btn svg { width: 20px; height: 20px; }
+.bell-btn { margin-left: auto; color: var(--muted); }
+
+.dot {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 1.5px solid var(--surface);
+}
+
+.brand-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon svg { width: 20px; height: 20px; stroke: white; }
+
+.brand-text h1 {
+  margin: 0;
+  font-size: clamp(14.5px, 3.6vw, 16px);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ===== Content ===== */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(20px, 5vw, 26px) clamp(20px, 6vw, 30px) clamp(28px, 6vw, 36px);
+}
+
+/* ===== Verified banner ===== */
+.verified-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--badge-green-bg);
+  border: 1px solid rgba(28, 138, 76, 0.25);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.verified-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verified-icon svg { width: 18px; height: 18px; }
+
+.verified-text h3 {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--badge-green-fg);
+}
+
+.verified-text p {
+  margin: 0;
+  font-size: 11.5px;
+  color: #2f6b45;
+}
+
+/* ===== Details card ===== */
+.details-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 5vw, 24px);
+  flex: 1;
+}
+
+.details-card h2 {
+  margin: 0 0 16px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.details-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.details-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.details-row .label {
+  font-size: 12.5px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.details-row .value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ===== Primary button ===== */
+.btn-primary {
+  width: 100%;
+  border: none;
+  background: var(--brand-blue);
+  color: var(--surface);
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover { background: var(--brand-blue-dark); }
+.btn-primary:active { transform: scale(0.98); }
+
+/* ===== Alt link ===== */
+.alt-link {
+  text-align: center;
+  margin: 0;
+}
+
+.alt-link a {
+  color: var(--muted-light);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.alt-link a:hover { text-decoration: underline; }
+
+/* ===== Responsive breakpoints ===== */
+@media (min-width: 640px) {
+  body { padding: 40px 16px; }
+  .app-frame {
+    min-height: 800px;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(15, 22, 70, 0.28);
+    margin: auto;
+  }
+  .top-bar { border-radius: 28px 28px 0 0; }
+}
+
+@media (min-width: 1024px) {
+  html, body {
+    background: radial-gradient(circle at 20% 20%, #e3e8f7 0%, var(--bg-page) 55%);
+  }
+  .app-frame { max-width: 480px; }
+}
+
+@media (min-width: 1440px) {
+  .app-frame { min-height: 860px; }
+}

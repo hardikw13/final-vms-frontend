@@ -1,0 +1,21 @@
+{
+  "brand": {
+    "title": "Pre Approved Visitor"
+  },
+  "backLink": "pre-approved-confirm.html",
+  "success": {
+    "title": "Registered!",
+    "subtitle": "Your visit has been recorded. Show this pass to the security desk."
+  },
+  "pass": {
+    "label": "Visitor Pass",
+    "items": [
+      { "label": "Host", "value": "Dr. Anjali Mehta" },
+      { "label": "Date", "value": "21 Jun 2026" },
+      { "label": "Check-in", "value": "11:32 AM" },
+      { "label": "Pass ID", "value": "VP-2024-03691" }
+    ]
+  },
+  "doneButtonText": "Done · Return to home",
+  "homeLink": "welcome.html"
+}

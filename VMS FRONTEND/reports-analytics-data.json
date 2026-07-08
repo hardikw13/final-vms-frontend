@@ -1,0 +1,70 @@
+{
+  "pageTitle": "Reports & Analytics",
+  "lastUpdated": "2 minutes ago",
+  "periods": ["Daily", "Weekly", "Monthly"],
+  "activePeriod": "Weekly",
+  "byPeriod": {
+    "Daily": {
+      "dateRange": "Today, Oct 29, 2024",
+      "chartTitle": "Hourly Visitors",
+      "days": [
+        { "label": "8A", "value": 12 },
+        { "label": "10A", "value": 34 },
+        { "label": "12P", "value": 58 },
+        { "label": "2P", "value": 46 },
+        { "label": "4P", "value": 28 },
+        { "label": "6P", "value": 14 }
+      ]
+    },
+    "Weekly": {
+      "dateRange": "Oct 23 - Oct 29, 2024",
+      "chartTitle": "Weekly Visitors",
+      "days": [
+        { "label": "M", "value": 188 },
+        { "label": "T", "value": 230 },
+        { "label": "W", "value": 210 },
+        { "label": "T", "value": 195 },
+        { "label": "F", "value": 165 },
+        { "label": "S", "value": 85 },
+        { "label": "S", "value": 42 }
+      ]
+    },
+    "Monthly": {
+      "dateRange": "Oct 2024",
+      "chartTitle": "Monthly Visitors",
+      "days": [
+        { "label": "W1", "value": 980 },
+        { "label": "W2", "value": 1120 },
+        { "label": "W3", "value": 1050 },
+        { "label": "W4", "value": 1284 }
+      ]
+    }
+  },
+  "peakHours": {
+    "subtitle": "Average daily distribution",
+    "hours": [
+      { "label": "8A", "value": 10 },
+      { "label": "9A", "value": 22 },
+      { "label": "10A", "value": 40 },
+      { "label": "11A", "value": 55 },
+      { "label": "12P", "value": 60 },
+      { "label": "1P", "value": 85 },
+      { "label": "2P", "value": 50 },
+      { "label": "3P", "value": 35 },
+      { "label": "4P", "value": 20 },
+      { "label": "5P", "value": 12 }
+    ],
+    "peakLabel": "Peak Hour: 1PM (85 visitors)"
+  },
+  "visitorCategories": [
+    { "label": "Pre-Approved", "count": 450, "percent": 74 },
+    { "label": "Walk-In", "count": 120, "percent": 20 },
+    { "label": "Delivery", "count": 35, "percent": 6 }
+  ],
+  "quickStats": [
+    { "label": "Total Deliveries", "value": "84" },
+    { "label": "Avg. Processing", "value": "12m" },
+    { "label": "Top Vendor", "value": "FedEx" },
+    { "label": "Pending Pickups", "value": "3" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "logs": [
+    { "id": "L1", "type": "entry", "name": "Priya Sharma", "detail": "Gate 1 · Host: Dr. Anjali Mehta", "time": "09:14 AM" },
+    { "id": "L2", "type": "entry", "name": "Rajan Patel", "detail": "Gate 2 · Walk-in · Job Interview", "time": "09:47 AM" },
+    { "id": "L3", "type": "exit", "name": "Kavita Nair", "detail": "Gate 1 · Guest Lecture complete", "time": "10:02 AM" },
+    { "id": "L4", "type": "entry", "name": "Amit Singh", "detail": "Gate 4 · Amazon Delivery", "time": "10:30 AM" },
+    { "id": "L5", "type": "entry", "name": "Deepa Rao", "detail": "Gate 4 · Student Pickup · Dr. Priya Verma", "time": "11:05 AM" },
+    { "id": "L6", "type": "exit", "name": "Amit Singh", "detail": "Gate 4 · Delivery complete", "time": "11:12 AM" }
+  ]
+}

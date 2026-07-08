@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Security | Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="security-common.css" />
+<link rel="stylesheet" href="security-dashboard.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="topnav">
+    <div class="brand">
+      <span class="brand-dot">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V5l-8-3z" fill="#fff"/></svg>
+      </span>
+      Security
+    </div>
+    <button class="avatar-btn" id="profileBtn" title="Profile">RK</button>
+  </div>
+
+  <div class="page-body">
+
+    <div class="action-grid">
+      <button class="btn btn-primary" id="scanQrBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg>
+        Scan Visitor QR
+      </button>
+      <button class="btn btn-outline" id="checkInBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        Check In
+      </button>
+    </div>
+
+    <div class="action-grid" style="margin-top:10px;">
+      <button class="btn btn-outline" id="registerBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        Register
+      </button>
+      <button class="btn btn-orange" id="pendingBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span id="pendingLabel">Pending approval</span>
+      </button>
+    </div>
+
+    <div class="stat-row">
+      <button class="stat-pill stat-pending" data-goto="pending">
+        <span class="num" id="statPending">0</span>
+        <span class="label">Pending</span>
+      </button>
+      <button class="stat-pill stat-inside" data-goto="inside">
+        <span class="num" id="statInside">0</span>
+        <span class="label">Inside</span>
+      </button>
+      <button class="stat-pill stat-expected" data-goto="expected">
+        <span class="num" id="statExpected">0</span>
+        <span class="label">Expected</span>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search visitors" />
+    </div>
+
+    <div class="tabs" id="listTabs">
+      <button class="tab-btn active" data-tab="inside">Currently Inside</button>
+      <button class="tab-btn" data-tab="expected">Expected Today</button>
+      <button class="tab-btn" data-tab="checkedOut">Checked Out</button>
+    </div>
+
+    <div class="section-title" style="margin-bottom:6px;">
+      <span id="listTitle">Currently Inside</span>
+      <span class="count-pill" id="listCount">0</span>
+    </div>
+
+    <div class="list" id="listContainer"></div>
+
+  </div>
+</div>
+
+<script src="security-common.js"></script>
+<script src="security-dashboard.js"></script>
+</body>
+</html>

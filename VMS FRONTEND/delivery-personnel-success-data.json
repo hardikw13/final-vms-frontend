@@ -1,0 +1,23 @@
+{
+  "brand": {
+    "title": "Delivery Personnel"
+  },
+  "backLink": "delivery-personnel.html",
+  "success": {
+    "title": "Submitted!",
+    "subtitle": "Your delivery details have been sent to the security desk for verification."
+  },
+  "pass": {
+    "label": "Delivery Pass"
+  },
+  "statusText": "Awaiting security confirmation",
+  "doneButtonText": "Done · Return to home",
+  "homeLink": "welcome.html",
+  "sampleSubmission": {
+    "companyName": "Zomato",
+    "contactNumber": "98765 43210",
+    "orderId": "ORD-2026-4821",
+    "recipient": "Front Desk",
+    "deliveryBoy": "Ramesh Yadav"
+  }
+}

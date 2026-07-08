@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reports &amp; Analytics · University Visitor Management System</title>
+<link rel="stylesheet" href="reports-analytics.css" />
+<link rel="stylesheet" href="common.css" />
+</head>
+<body>
+  <div class="phone">
+
+    <header class="topbar">
+      <span class="topbar-title">Reports &amp; Analytics</span>
+      <div class="topbar-right">
+        <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2h-4.4A2.2 2.2 0 0 0 12 22Zm7-6.2v-5a7 7 0 0 0-5.6-6.86V3a1.4 1.4 0 1 0-2.8 0v.94A7 7 0 0 0 5 15.8L3.5 17.3v.9H20.5v-.9L19 15.8Z" fill="currentColor"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab" href="admin-dashboard.html">Overview</a>
+      <a class="tab" href="all-visitors.html">Visitors</a>
+      <a class="tab active" href="reports-analytics.html">Reports</a>
+      <a class="tab" href="manage-users.html">Users</a>
+    </nav>
+
+    <main class="content">
+
+      <div class="period-row">
+        <div class="period-toggle" id="periodToggle">
+          <!-- filled by JS -->
+        </div>
+        <span class="last-updated" id="lastUpdated"></span>
+      </div>
+
+      <!-- Weekly Visitors -->
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-title" id="weeklyCardTitle">Weekly Visitors</h2>
+          <svg viewBox="0 0 24 24" width="16" height="16" class="card-icon"><path d="M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm2 12h2v4H7Zm4-6h2v10h-2Zm4 3h2v7h-2Z" fill="currentColor"/></svg>
+        </div>
+        <p class="card-sub" id="weeklyDateRange"></p>
+        <div class="bar-chart" id="weeklyChart"></div>
+      </section>
+
+      <!-- Peak Visiting Hours -->
+      <section class="card">
+        <h2 class="card-title">Peak Visiting Hours</h2>
+        <p class="card-sub" id="peakSubtitle"></p>
+        <div class="bar-chart small" id="peakChart"></div>
+        <p class="peak-caption" id="peakCaption"></p>
+      </section>
+
+      <!-- Visitor Categories -->
+      <section class="card">
+        <h2 class="card-title">Visitor Categories</h2>
+        <div class="category-bars" id="categoryBars"></div>
+      </section>
+
+      <!-- Quick stats -->
+      <div class="stat-grid" id="statGrid"></div>
+
+      <button class="export-btn" id="exportBtn" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3v10.5l3.5-3.5L17 11.5 12 16.5 7 11.5l1.5-1.5L12 13.5V3ZM5 19h14v2H5Z" fill="currentColor"/></svg>
+        Export Full Report
+      </button>
+
+    </main>
+
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <span>·</span>
+        <a href="#">Terms of Service</a>
+        <span>·</span>
+        <a href="#">Help Center</a>
+      </div>
+      <a href="member-login.html" class="sign-out">Sign Out</a>
+      <p class="copyright">© 2026 University Visitor Management System</p>
+    </footer>
+
+  </div>
+
+<script src="common.js"></script>
+<script src="reports-analytics.js"></script>
+</body>
+</html>

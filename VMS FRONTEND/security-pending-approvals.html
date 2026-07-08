@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Security | Pending Approvals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="security-common.css" />
+<link rel="stylesheet" href="security-pending-approvals.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="topnav">
+    <a class="back-link" href="security-dashboard.html">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      Pending approvals
+    </a>
+    <span class="count-pill" id="headerCount">0</span>
+  </div>
+
+  <div class="page-body">
+    <div class="list" id="pendingList"></div>
+  </div>
+</div>
+
+<script src="security-common.js"></script>
+<script src="security-pending-approvals.js"></script>
+</body>
+</html>
