@@ -1,0 +1,182 @@
+/* create-department.css */
+
+.page-title{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.form-card{
+    background:var(--card);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:20px;
+}
+
+.form-card h2{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:var(--ink);
+}
+
+.form-subtitle{
+    margin:6px 0 24px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.5;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:18px;
+}
+
+.form-group label{
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:8px;
+    color:var(--ink);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+
+    width:100%;
+    padding:12px 14px;
+
+    border:1px solid var(--line);
+    border-radius:10px;
+
+    background:#fff;
+
+    font-size:14px;
+
+    color:var(--ink);
+
+    outline:none;
+
+    transition:.2s;
+}
+
+.form-group textarea{
+
+    resize:vertical;
+
+    min-height:110px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+
+    border-color:var(--blue);
+
+    box-shadow:0 0 0 3px rgba(59,111,242,.15);
+
+}
+
+.date-group{
+
+    transition:.3s;
+}
+
+.button-row{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    margin-top:30px;
+}
+
+.btn-primary,
+.btn-secondary{
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 22px;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.btn-primary{
+
+    background:var(--blue);
+
+    color:#fff;
+}
+
+.btn-primary:hover{
+
+    background:var(--blue-dark);
+}
+
+.btn-secondary{
+
+    background:#eef1f6;
+
+    color:var(--ink);
+}
+
+.btn-secondary:hover{
+
+    background:#dde3ec;
+}
+
+.back-btn{
+
+    text-decoration:none;
+
+    color:var(--blue);
+
+    font-size:22px;
+
+    font-weight:700;
+
+    margin-right:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:34px;
+
+    height:34px;
+
+    border-radius:50%;
+}
+
+.back-btn:hover{
+
+    background:var(--blue-light);
+}
+
+@media(max-width:480px){
+
+    .button-row{
+
+        flex-direction:column-reverse;
+    }
+
+    .btn-primary,
+    .btn-secondary{
+
+        width:100%;
+    }
+
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Create Department</title>
+
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="admin-dashboard.css">
+<link rel="stylesheet" href="create-department.css">
+</head>
+
+<body>
+
+<div class="phone">
+
+    <!-- Header -->
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <a href="departments.html" class="back-btn">
+                ←
+            </a>
+
+            <span class="topbar-title">
+                Create Department
+            </span>
+
+        </div>
+
+    </header>
+
+    <main class="content">
+
+        <div class="form-card">
+
+            <h2>Create New Department</h2>
+
+            <p class="form-subtitle">
+                Fill in the details below to create a new department.
+            </p>
+
+            <form id="departmentForm">
+
+                <!-- Department Name -->
+
+                <div class="form-group">
+
+                    <label>
+                        Department Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="department_name"
+                        placeholder="Enter department name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Description -->
+
+                <div class="form-group">
+
+                    <label>
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        rows="4"
+                        placeholder="Enter description"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Type -->
+
+                <div class="form-group">
+
+                    <label>
+                        Department Type
+                    </label>
+
+                    <select id="type">
+
+                        <option value="permanent">
+                            Permanent
+                        </option>
+
+                        <option value="event">
+                            Event
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Start Date -->
+
+                <div
+                    class="form-group date-group"
+                    id="startDateGroup"
+                    style="display:none;"
+                >
+
+                    <label>
+                        Start Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="start_date"
+                    >
+
+                </div>
+
+
+                <!-- End Date -->
+
+                <div
+                    class="form-group date-group"
+                    id="endDateGroup"
+                    style="display:none;"
+                >
+
+                    <label>
+                        End Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="end_date"
+                    >
+
+                </div>
+
+
+                <!-- Buttons -->
+
+                <div class="button-row">
+
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        onclick="window.location='departments.html'"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                    >
+                        Create Department
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="create-department.js"></script>
+
+</body>
+</html>

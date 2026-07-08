@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add User</title>
+
+<link rel="stylesheet" href="add-user.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<header>
+
+<h2>Add User</h2>
+
+<a href="manage-users.html">
+Back
+</a>
+
+</header>
+
+
+
+<form id="addUserForm">
+
+
+<div class="field">
+
+<label>
+Full Name
+</label>
+
+<input 
+type="text"
+id="name"
+placeholder="Enter name"
+required>
+
+</div>
+
+
+
+
+<div class="field">
+
+<label>
+Email
+</label>
+
+<input 
+type="email"
+id="email"
+placeholder="Enter email"
+required>
+
+</div>
+
+
+
+
+
+<div class="field">
+
+<label>
+Department
+</label>
+
+
+<select id="department" required>
+
+<option value="">
+Select Department
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div class="field">
+
+<label>
+Role
+</label>
+
+<select id="role" required>
+
+    <option value="">
+        Select Role
+    </option>
+
+    <option value="1">
+        ADMIN
+    </option>
+
+    <option value="4">
+        HEAD_HOST
+    </option>
+
+    <option value="3">
+        HOST
+    </option>
+
+    <option value="2">
+        SECURITY
+    </option>
+
+    <option value="5">
+        FACULTY
+    </option>
+
+</select>
+
+</div>
+
+
+
+
+
+
+<button type="submit">
+
+Create User
+
+</button>
+
+
+
+</form>
+
+
+
+
+<p id="message"></p>
+
+
+
+</div>
+
+
+<script src="add-user.js"></script>
+
+
+</body>
+
+</html>
