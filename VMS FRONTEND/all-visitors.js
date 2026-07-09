@@ -1,5 +1,9 @@
 // all-visitors.js
-// Loads all-visitors-data.json, renders the visitor list, and wires up search, filter, and export.
+// Loads visitors from the backend API, renders the visitor list, and wires up search, filter, and export.
+
+// ---- Config ----------------------------------------------------------
+const API_BASE = 'http://localhost:5000/api'; // change to your deployed API origin
+const TOKEN_KEY = 'token'; // must match whatever key your login page saves the JWT under
 
 let allVisitors = [];
 let activeFilters = { status: new Set(), category: new Set() };
@@ -9,6 +13,43 @@ function statusClass(status) {
 }
 function categoryClass(cat) {
   return cat.toLowerCase().replace(/\s+/g, '-');
+}
+
+// Human-readable labels for the VisitStatus enum coming back from Prisma
+const STATUS_LABELS = {
+  pending_otp: 'Pending OTP',
+  auto_cleared: 'Auto Cleared',
+  flagged: 'Flagged',
+  resolved_approved: 'Approved',
+  resolved_rejected: 'Rejected',
+  checked_in: 'Checked In',
+  checked_out: 'Checked Out',
+};
+
+function formatStatus(rawStatus) {
+  return STATUS_LABELS[rawStatus] || rawStatus;
+}
+
+function buildHostLine(visit) {
+  const host = visit.assigned_host || visit.requested_host;
+  if (host && host.user && host.user.name) {
+    return visit.purpose ? `Host: ${host.user.name} — ${visit.purpose}` : `Host: ${host.user.name}`;
+  }
+  if (visit.visit_type === 'delivery') {
+    return visit.recipient_name ? `Delivery for ${visit.recipient_name}` : 'Delivery';
+  }
+  return visit.purpose || 'No host assigned';
+}
+
+// Map a raw /api/visits row into the shape the UI expects
+function mapVisitToVisitor(visit) {
+  return {
+    id: visit.visit_id,
+    name: visit.visitor ? visit.visitor.full_name : 'Unknown',
+    status: formatStatus(visit.status),
+    category: (visit.department && visit.department.department_name) || 'Uncategorized',
+    hostLine: buildHostLine(visit),
+  };
 }
 
 function renderVisitors(visitors) {
@@ -37,7 +78,7 @@ function getVisibleVisitors() {
   return allVisitors.filter(v => {
     const matchesQuery = !q ||
       v.name.toLowerCase().includes(q) ||
-      v.id.toLowerCase().includes(q) ||
+      String(v.id).toLowerCase().includes(q) ||
       v.hostLine.toLowerCase().includes(q) ||
       v.category.toLowerCase().includes(q);
     const matchesStatus = !activeFilters.status.size || activeFilters.status.has(v.status);
@@ -78,14 +119,37 @@ function exportVisibleCSV() {
   showToast(`Exported ${visible.length} visitor${visible.length === 1 ? '' : 's'}`);
 }
 
+function getAuthToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 async function loadVisitors() {
   try {
-    const res = await fetch('all-visitors-data.json');
-    if (!res.ok) throw new Error(`Failed to load data: ${res.status}`);
-    const data = await res.json();
+    const token = getAuthToken();
+    if (!token) {
+      window.location.href = 'member-login.html';
+      return;
+    }
 
-    document.querySelector('.page-heading').textContent = data.pageTitle || 'All Visitors';
-    allVisitors = data.visitors || [];
+    const res = await fetch(`${API_BASE}/visits`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 401) {
+      // Token missing/expired — send back to login
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = 'member-login.html';
+      return;
+    }
+
+    const payload = await res.json();
+    if (!res.ok || !payload.success) {
+      throw new Error(payload.message || `Failed to load data: ${res.status}`);
+    }
+
+    allVisitors = (payload.data || []).map(mapVisitToVisitor);
 
     const statuses = [...new Set(allVisitors.map(v => v.status))];
     const categories = [...new Set(allVisitors.map(v => v.category))];
