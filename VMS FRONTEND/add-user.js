@@ -1,14 +1,21 @@
 const API_URL = "http://localhost:5000/api";
 
-
 document.addEventListener("DOMContentLoaded", () => {
-
 
     const form = document.getElementById("addUserForm");
 
     const departmentSelect = document.getElementById("department");
 
     const message = document.getElementById("message");
+
+    const roleSelect = document.getElementById("role");
+
+    const headHostContainer = document.getElementById("headHostContainer");
+
+    const isHeadCheckbox = document.getElementById("isHead");
+    const departmentContainer = document.getElementById("departmentContainer");
+    const designationContainer = document.getElementById("designationContainer");
+    const designationInput = document.getElementById("designation");
 
 
 
@@ -20,6 +27,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+    // -----------------------------
+    // Show Head Host option only for HOST
+    // -----------------------------
+
+    roleSelect.addEventListener("change", () => {
+
+    if (roleSelect.value === "3") {
+
+        // HOST
+        headHostContainer.style.display = "block";
+        departmentContainer.style.display = "block";
+
+    }
+    else if (roleSelect.value === "2") {
+
+        // SECURITY
+        headHostContainer.style.display = "none";
+        isHeadCheckbox.checked = false;
+
+        departmentContainer.style.display = "none";
+        departmentSelect.value = "";
+
+    }
+    else if (roleSelect.value === "1") {
+
+        // ADMIN
+        headHostContainer.style.display = "none";
+        isHeadCheckbox.checked = false;
+
+        departmentContainer.style.display = "none";
+        departmentSelect.value = "";
+
+    }
+    else {
+
+        // No role selected
+        headHostContainer.style.display = "none";
+        isHeadCheckbox.checked = false;
+
+        departmentContainer.style.display = "block";
+
+    }
+
+});
+
 
     // -----------------------------
     // Load Departments
@@ -27,12 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadDepartments() {
 
-
         try {
 
-
             const token = getToken();
-
 
             if (!token) {
 
@@ -41,8 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
             }
-
-
 
             const response = await fetch(
                 `${API_URL}/departments`,
@@ -60,12 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             );
 
-
-
             const result =
-            await response.json();
-
-
+                await response.json();
 
             if (!response.ok) {
 
@@ -76,12 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
-
-
             const departments =
-            result.data;
-
-
+                result.data;
 
             departmentSelect.innerHTML = `
 
@@ -91,55 +130,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
             `;
 
-
-
             departments.forEach(dep => {
 
-
                 const option =
-                document.createElement("option");
+                    document.createElement("option");
 
-
+                // Send department_id to backend
                 option.value =
-                dep.department_name;
-
+                    dep.department_id;
 
                 option.textContent =
-                dep.department_name;
-
-
+                    dep.department_name;
 
                 departmentSelect.appendChild(
                     option
                 );
 
-
             });
-
-
 
         }
 
-        catch(error) {
-
+        catch (error) {
 
             console.error(
                 error
             );
 
-
             message.style.color = "red";
 
             message.textContent =
-            error.message;
-
+                error.message;
 
         }
 
-
     }
-
-
 
 
 
@@ -150,180 +174,129 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------------
 
     form.addEventListener(
-    "submit",
-    async(e)=>{
+        "submit",
+        async (e) => {
 
+            e.preventDefault();
 
-        e.preventDefault();
+            const token =
+                getToken();
 
+            const user = {
 
+                name:
+                    document
+                        .getElementById("name")
+                        .value
+                        .trim(),
 
-        const token =
-        getToken();
+                email:
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim(),
 
+                department_id:
+    departmentSelect.value
+        ? Number(departmentSelect.value)
+        : null,
+        designation:
+        designationInput.value.trim(),
 
+                role_id:
+                    Number(
+                        document
+                            .getElementById("role")
+                            .value
+                    ),
 
-        const user = {
+                is_head:
+                    isHeadCheckbox.checked
 
-
-            name:
-            document
-            .getElementById("name")
-            .value
-            .trim(),
-
-
-
-            email:
-            document
-            .getElementById("email")
-            .value
-            .trim(),
-
-
-
-            department:
-            departmentSelect.value,
-
-
-
-            role_id:
-            document
-            .getElementById("role")
-            .value.trim()
-
-
-        };
-
-
-
-        console.log(
-            "Sending User:",
-            user
-        );
-
-
-
-
-        try {
-
-
-            const response =
-            await fetch(
-                `${API_URL}/users`,
-                {
-
-                    method:"POST",
-
-
-                    headers:{
-
-
-                        "Authorization":
-                        `Bearer ${token}`,
-
-
-                        "Content-Type":
-                        "application/json"
-
-
-                    },
-
-
-                    body:
-                    JSON.stringify(user)
-
-
-                }
-            );
-
-
-
-
-
-            const result =
-            await response.json();
-
-
-
+            };
 
             console.log(
-                "Create Response:",
-                result
+                "Sending User:",
+                user
             );
 
+            try {
 
+                const response =
+                    await fetch(
+                        `${API_URL}/users`,
+                        {
 
+                            method: "POST",
 
+                            headers: {
 
-            if(!response.ok){
+                                "Authorization":
+                                    `Bearer ${token}`,
 
+                                "Content-Type":
+                                    "application/json"
 
-                throw new Error(
-                    result.message ||
-                    "Failed to create user"
+                            },
+
+                            body:
+                                JSON.stringify(user)
+
+                        }
+                    );
+
+                const result =
+                    await response.json();
+
+                console.log(
+                    "Create Response:",
+                    result
                 );
 
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.message ||
+                        "Failed to create user"
+                    );
+
+                }
+
+                message.style.color =
+                    "green";
+
+                message.textContent =
+                    "User created successfully";
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "manage-users.html";
+
+                }, 1500);
 
             }
 
+            catch (error) {
 
+                console.error(
+                    error
+                );
 
+                message.style.color =
+                    "red";
 
-            message.style.color =
-            "green";
+                message.textContent =
+                    error.message;
 
+            }
 
-            message.textContent =
-            "User created successfully";
-
-
-
-
-
-            setTimeout(()=>{
-
-
-                window.location.href =
-                "manage-users.html";
-
-
-            },1500);
-
-
-
-
-
-        }
-
-        catch(error){
-
-
-            console.error(
-                error
-            );
-
-
-            message.style.color =
-            "red";
-
-
-            message.textContent =
-            error.message;
-
-
-        }
-
-
-
-    });
+        });
 
 
 
 
 
     loadDepartments();
-
-
 
 });
