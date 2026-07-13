@@ -87,23 +87,59 @@ function generatePassId() {
     details = JSON.parse(localStorage.getItem("eduGateWalkinDetails") || "{}");
   } catch (e) { /* ignore */ }
 
-  const fullName = [details.firstName, details.lastName].filter(Boolean).join(" ") || "Visitor";
+
+
+  let visitorPass = {};
+
+try {
+    visitorPass = JSON.parse(
+        sessionStorage.getItem("visitorPass") || "{}"
+    );
+} catch (e) {}
+
+
+
+  const fullName = visitorPass.visitorName || "Visitor";
   document.getElementById("passName").textContent = fullName;
   document.getElementById("passType").textContent = `${details.visitorType || "Guest"} Visitor`;
-  document.getElementById("passPurpose").textContent = `Purpose: ${details.purpose || "—"}`;
+  document.getElementById("passPurpose").textContent =
+    `Purpose: ${visitorPass.purpose || "—"}`;
 
-  const storedPhoto = localStorage.getItem("eduGateWalkinPhoto");
-  if (storedPhoto) {
-    document.getElementById("passPhotoImg").src = storedPhoto;
-    document.getElementById("passPhotoImg").hidden = false;
-    document.querySelector("#passPhoto svg").hidden = true;
-  }
+  const storedPhoto = sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+if (storedPhoto) {
+  document.getElementById("passPhotoImg").src = storedPhoto;
+  document.getElementById("passPhotoImg").hidden = false;
+  document.querySelector("#passPhoto svg").hidden = true;
+}
+
+
 
   const grid = document.getElementById("passGrid");
-  grid.appendChild(renderPassItem("Host", details.personToMeet || "—"));
-  grid.appendChild(renderPassItem("Date", formatToday()));
-  grid.appendChild(renderPassItem("Check-in Time", new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })));
-  grid.appendChild(renderPassItem("Pass ID", generatePassId()));
+  grid.appendChild(
+    renderPassItem("Host", visitorPass.hostName || "—")
+);
+
+grid.appendChild(
+    renderPassItem("Date", formatToday())
+);
+
+grid.appendChild(
+    renderPassItem(
+        "Check-in Time",
+        new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+    )
+);
+
+grid.appendChild(
+    renderPassItem("Pass ID", visitorPass.passId || "—")
+);
+
+
+
 
   document.getElementById("notifiedText").textContent = data.notifiedTextTemplate.replace(
     "{department}",

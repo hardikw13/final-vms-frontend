@@ -160,7 +160,9 @@ function renderStepIndicator(container, steps, currentKey) {
 
   // Show photo captured on the previous screen
   const storedPhoto =
-    localStorage.getItem("eduGateWalkinPhoto");
+  sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+  console.log(storedPhoto);
 
   if (storedPhoto) {
 
@@ -193,25 +195,106 @@ function renderStepIndicator(container, steps, currentKey) {
     });
 
 
-  /*
-    Department data will later come from the backend.
+  const organizationId = 1;
 
-    Example future flow:
+const departmentSelect =
+  document.getElementById("department");
 
-    fetch departments
-        ↓
-    add department options
-        ↓
-    visitor selects department
-        ↓
-    fetch department head
-        ↓
-    fill personToMeet
-  */
+try {
+
+  const response = await fetch(
+    `http://localhost:5000/api/registration/departments?org=${organizationId}`
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message);
+  }
+
+  departmentSelect.innerHTML =
+    '<option value="">Select Department</option>';
+
+  result.data.forEach((department) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      department.department_id;
+
+    option.textContent =
+      department.department_name;
+
+    departmentSelect.appendChild(option);
+
+  });
+
+} catch (err) {
+
+  console.error(
+    "Could not load departments:",
+    err
+  );
+
+}
+
+departmentSelect.addEventListener(
+  "change",
+  async () => {
+
+    const departmentId =
+      departmentSelect.value;
+
+    const personToMeet =
+      document.getElementById("personToMeet");
+
+
+    if (!departmentId) {
+
+      personToMeet.value = "";
+      personToMeet.placeholder =
+        "Select a department first";
+
+      return;
+    }
+
+    try {
+
+      const response = await fetch(
+        `http://localhost:5000/api/registration/departments/${departmentId}/head`
+      );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      personToMeet.value =
+        result.data.name;
+
+      personToMeet.dataset.hostId =
+        result.data.host_id;
+
+    } catch (err) {
+
+      console.error(err);
+
+      personToMeet.value = "";
+
+      personToMeet.placeholder =
+        "No department head assigned";
+
+    }
+
+  }
+);
 
 
   document.getElementById("detailsForm")
-    .addEventListener("submit", (e) => {
+  .addEventListener("submit", async (e) => {
 
       e.preventDefault();
 
@@ -236,15 +319,49 @@ function renderStepIndicator(container, steps, currentKey) {
         personToMeet:
           document.getElementById("personToMeet").value,
 
+        hostId:
+          document
+            .getElementById("personToMeet")
+            .dataset.hostId,
+
         visitType: "walk_in"
 
       };
 
+      try {
 
-      localStorage.setItem(
-        "eduGateWalkinDetails",
-        JSON.stringify(formData)
-      );
+  const response = await fetch(
+    "http://localhost:5000/api/registration/send-otp",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        fullName: formData.fullName
+      })
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message);
+  }
+
+} catch (err) {
+
+  alert(err.message);
+  return;
+
+}
+
+
+      sessionStorage.setItem(
+  "eduGateWalkinDetails",
+  JSON.stringify(formData)
+);
 
 
       window.location.href =
