@@ -81,7 +81,9 @@ function formatTime(totalSeconds) {
   // Pull the email entered on the Details page for the "sent to ***" line
   let storedDetails = {};
   try {
-    storedDetails = JSON.parse(localStorage.getItem("eduGateWalkinDetails") || "{}");
+    storedDetails = JSON.parse(
+  sessionStorage.getItem("eduGateWalkinDetails") || "{}"
+);
   } catch (e) { /* ignore */ }
   document.getElementById("maskedEmail").textContent = maskEmail(storedDetails.email);
   document.getElementById("otpSubtitle").childNodes[0].textContent = `${data.subtitlePrefix} `;
@@ -136,9 +138,85 @@ function formatTime(totalSeconds) {
     updateVerifyState();
   });
 
-  verifyBtn.addEventListener("click", () => {
-    if (verifyBtn.disabled) return;
-    // OTP verified — visitor can walk in directly, no security approval queue needed
-    window.location.href = data.nextPage;
-  });
+  verifyBtn.addEventListener("click", async () => {
+
+  if (verifyBtn.disabled) return;
+
+  const otp = boxes.map(box => box.value).join("");
+  console.log("Email:", storedDetails.email);
+console.log("OTP:", otp);
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:5000/api/registration/verify-otp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: storedDetails.email,
+          otp: otp
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message);
+    }
+
+    alert("OTP Verified Successfully!");
+
+// Get visitor details
+const details = JSON.parse(
+  sessionStorage.getItem("eduGateWalkinDetails")
+);
+
+// Get uploaded photo URL
+const photoUrl = sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+// Call complete registration API
+const registrationResponse = await fetch(
+  "http://localhost:5000/api/registration/complete-registration",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      ...details,
+      photoUrl: photoUrl
+    })
+  }
+);
+
+const registrationResult = await registrationResponse.json();
+
+if (!registrationResponse.ok) {
+  throw new Error(registrationResult.message);
+}
+
+sessionStorage.setItem(
+  "visitorPass",
+  JSON.stringify(registrationResult.data)
+);
+
+window.location.href = data.nextPage;
+
+  } catch (err) {
+
+    alert(err.message);
+
+    boxes.forEach(box => box.value = "");
+
+    boxes[0].focus();
+
+    updateVerifyState();
+
+  }
+
+});
 })();

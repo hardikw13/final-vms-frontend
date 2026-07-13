@@ -97,20 +97,83 @@ function renderTip(tip) {
     console.warn("Camera unavailable, continuing without a live preview:", err.message);
   }
 
-  document.getElementById("captureBtn").addEventListener("click", () => {
-    if (stream) {
-      canvas.width = video.videoWidth || 320;
-      canvas.height = video.videoHeight || 320;
-      canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-      try {
-        localStorage.setItem("eduGateWalkinPhoto", canvas.toDataURL("image/jpeg", 0.85));
-      } catch (e) {
-        console.warn("Could not store captured photo:", e.message);
+  document.getElementById("captureBtn").addEventListener("click", async () => {
+  if (!stream) {
+    console.warn("No camera stream available.");
+    return;
+  }
+
+  // 1. Capture the current video frame onto the canvas
+  canvas.width = video.videoWidth || 320;
+  canvas.height = video.videoHeight || 320;
+
+  canvas
+    .getContext("2d")
+    .drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // 2. Convert the canvas image into a Blob
+  canvas.toBlob(
+    async (blob) => {
+      if (!blob) {
+        console.error("Could not create photo blob.");
+        return;
       }
-      stream.getTracks().forEach((t) => t.stop());
-    } else {
-      localStorage.removeItem("eduGateWalkinPhoto");
-    }
-    window.location.href = data.nextPage;
-  });
+
+      try {
+        // 3. Create multipart/form-data
+        const formData = new FormData();
+
+        formData.append(
+          "photo",
+          blob,
+          "visitor-photo.jpg"
+        );
+
+        // 4. Send the photo to our backend
+        const response = await fetch(
+          "http://localhost:5000/api/registration/photo",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error || "Photo upload failed."
+          );
+        }
+
+        // 5. Temporarily hold the returned Supabase photo URL
+        sessionStorage.setItem(
+          "eduGateWalkinPhotoUrl",
+          result.photo_url
+        );
+
+        console.log(
+          "Photo uploaded successfully:",
+          result.photo_url
+        );
+
+        // 6. Stop the camera
+        stream
+          .getTracks()
+          .forEach((track) => track.stop());
+
+        // 7. Continue to visitor details
+        window.location.href = data.nextPage;
+
+      } catch (error) {
+        console.error(
+          "Photo upload error:",
+          error
+        );
+      }
+    },
+    "image/jpeg",
+    0.85
+  );
+});
 })();
