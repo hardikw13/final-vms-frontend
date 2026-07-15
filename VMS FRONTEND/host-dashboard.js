@@ -10,6 +10,8 @@ const NOTIF_ICONS = {
 };
 
 const AVATAR_COLORS = ["#3346e8", "#e0433d", "#1c8a4c", "#b9790f", "#7c4fd6", "#0891b2"];
+let dashboardData = null;
+let selectedVisitId = null;
 
 const FALLBACK_DATA = {
   brand: { title: "Host Dashboard", rolePill: "Host" },
@@ -38,16 +40,46 @@ const FALLBACK_DATA = {
 };
 
 async function loadData() {
-  try {
-    const res = await fetch("host-dashboard-data.json");
-    if (!res.ok) throw new Error("bad response");
-    return await res.json();
-  } catch (err) {
-    console.warn("Falling back to inline data:", err.message);
-    return FALLBACK_DATA;
-  }
-}
 
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/hosts/dashboard", {
+
+      method: "GET",
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+        "Authorization": `Bearer ${token}`
+
+      }
+
+    });
+
+    if (!res.ok) {
+
+      throw new Error("Failed to fetch dashboard");
+
+    }
+
+    const result = await res.json();
+
+    return result.data;
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    return FALLBACK_DATA;
+
+  }
+
+}
 function initials(name) {
   return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 }
@@ -75,17 +107,38 @@ function renderTodayCard(item, index) {
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const statusLabel = item.status === "inside" ? "Inside" : "Checked Out";
   el.innerHTML = `
-    <div class="visitor-top">
-      <div class="avatar" style="background:${color}">${initials(item.name)}</div>
-      <div class="visitor-info">
-        <div class="visitor-name-row">
-          <span class="visitor-name">${item.name}</span>
-          <span class="status-badge ${item.status}">${statusLabel}</span>
-        </div>
-        <p class="visitor-meta">${item.category}</p>
-      </div>
+  <div class="visitor-top">
+
+    <div class="avatar" style="background:${color}">
+      ${initials(item.name)}
     </div>
-  `;
+
+    <div class="visitor-info">
+
+      <div class="visitor-name-row">
+
+        <span class="visitor-name">${item.name}</span>
+
+        <span class="status-badge ${item.status}">
+          ${statusLabel}
+        </span>
+
+      </div>
+
+      <p class="visitor-meta">${item.category}</p>
+
+      ${
+        dashboardData?.permissions?.canReassign
+          ? `<button class="reassign-btn" data-visit="${item.visitId}">
+                Reassign
+             </button>`
+          : ""
+      }
+
+    </div>
+
+  </div>
+`;
   return el;
 }
 
@@ -104,6 +157,7 @@ function renderNotification(item) {
 
 (async function init() {
   const data = await loadData();
+  dashboardData = data;
 
   document.getElementById("brandTitle").textContent = data.brand.title;
   document.getElementById("rolePill").textContent = data.brand.rolePill;
@@ -132,6 +186,128 @@ function renderNotification(item) {
       btn.dataset.tab === "today" ? "panelToday" : "panelNotifications"
     ).classList.add("active");
   });
+  // ================================
+// Reassign Modal
+// ================================
+
+const modal = document.getElementById("reassignModal");
+
+const cancelBtn = document.getElementById("cancelReassign");
+const confirmBtn = document.getElementById("confirmReassign");
+const hostSelect = document.getElementById("hostSelect");
+console.log("modal:", modal);
+console.log("cancel:", cancelBtn);
+console.log("confirm:", confirmBtn);
+console.log("hostSelect:", hostSelect);
+console.log("invite:", document.getElementById("inviteVisitorBtn"));
+
+
+confirmBtn.addEventListener("click", async () => {
+
+    if (!hostSelect.value) {
+
+        alert("Please select a host.");
+
+        return;
+
+    }
+
+    const response = await fetch(
+
+        `http://localhost:5000/api/hosts/visits/${selectedVisitId}/reassign`,
+
+        {
+
+            method: "PATCH",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+
+            },
+
+            body: JSON.stringify({
+
+                newHostId: hostSelect.value
+
+            })
+
+        }
+
+    );
+
+    const result = await response.json();
+
+    if(result.success){
+
+        alert("Visit reassigned successfully.");
+
+        modal.classList.add("hidden");
+
+        location.reload();
+
+    }
+
+    else{
+
+        alert(result.message);
+
+    }
+
+});
+
+document.addEventListener("click", async (e) => {
+
+    const btn = e.target.closest(".reassign-btn");
+
+    if (!btn) return;
+
+    selectedVisitId = btn.dataset.visit;
+
+    
+
+    hostSelect.innerHTML = `<option value="">Loading...</option>`;
+
+    const res = await fetch(
+        "http://localhost:5000/api/hosts/department-hosts",
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    const result = await res.json();
+
+if (!res.ok) {
+    alert(result.message || "Failed to load hosts.");
+    return;
+}
+
+hostSelect.innerHTML = "";
+
+result.data.forEach((host) => {
+    const option = document.createElement("option");
+    option.value = host.host_id;
+    option.textContent = host.user.name;
+    hostSelect.appendChild(option);
+});
+
+modal.classList.remove("hidden");
+});
+// Close modal
+cancelBtn.addEventListener("click", () => {
+
+    modal.classList.add("hidden");
+
+});
+document.getElementById("inviteVisitorBtn").addEventListener("click", () => {
+
+    window.location.href = "create-visit.html";
+
+});
 
   document.getElementById("signOutBtn").addEventListener("click", () => {
     window.location.href = data.signOutLink;

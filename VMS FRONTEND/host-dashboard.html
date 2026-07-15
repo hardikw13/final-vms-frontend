@@ -33,6 +33,7 @@
     <main class="content">
 
       <section class="stats-row" id="statsRow"><!-- stat cards injected by host-dashboard.js --></section>
+     
 
       <nav class="tabs" id="tabs">
         <button class="tab-btn active" data-tab="today" type="button">
@@ -50,6 +51,17 @@
       <section class="tab-panel" id="panelNotifications">
         <div class="list" id="notificationsList"><!-- injected --></div>
       </section>
+      <div class="dashboard-actions">
+
+    <button id="inviteVisitorBtn" class="invite-btn">
+
+        <span class="plus-icon">+</span>
+
+        <span>Invite Visitor</span>
+
+    </button>
+
+</div>
 
       <button class="sign-out-btn" id="signOutBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -59,6 +71,36 @@
     </main>
 
   </div>
+  <!-- Reassign Modal -->
+<div id="reassignModal" class="modal hidden">
+
+  <div class="modal-content">
+
+    <h2>Reassign Visit</h2>
+
+    <label>Select New Host</label>
+
+    <select id="hostSelect">
+
+      <option value="">Select Host</option>
+
+    </select>
+
+    <div class="modal-buttons">
+
+      <button id="cancelReassign">
+        Cancel
+      </button>
+
+      <button id="confirmReassign">
+        Assign
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
   <script src="host-dashboard.js"></script>
 </body>
