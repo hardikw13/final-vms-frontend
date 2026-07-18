@@ -1,6 +1,6 @@
 import {
-    FaceLandmarker,
-    FilesetResolver
+  FaceLandmarker,
+  FilesetResolver
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
 
 let faceLandmarker;
@@ -15,17 +15,36 @@ const CENTER_TOLERANCE_X = 60;
 const MIN_OFFSET_Y = 30;
 const MAX_OFFSET_Y = 100;
 
+// ==========================================
+// Face Visibility Validation Constants & State
+// ==========================================
+// Adjust these parameters to tune the sensitivity of the occlusion checks:
+const DETECTION_WINDOW_SIZE = 30;       // Number of frames to track face detection availability
+const NOSE_CHIN_RATIO_PRIMARY = 0.43;   // Primary ratio threshold: ratios below this are flagged as occluded
+const NOSE_CHIN_RATIO_SUPPORT = 0.45;   // Supporting ratio threshold: checked in combination with jitter
+const JITTER_THRESHOLD = 0.50;          // Supporting jitter threshold in pixels
+const AVAILABILITY_LOSS_THRESHOLD = 0.10; // Minimum availability to treat complete face loss as occlusion
+
+const OCCLUSION_SCORE_THRESHOLD = 1.0;  // Score needed to flag a frame as occluded
+const NOSE_RATIO_PRIMARY_SCORE = 1.0;   // Weight for strong nose-chin ratio deviation
+const NOSE_RATIO_SUPPORT_SCORE = 0.6;   // Weight for mild nose-chin ratio deviation
+const JITTER_SUPPORT_SCORE = 0.5;       // Weight for high mouth jitter
+const AVAILABILITY_SUPPORT_SCORE = 0.5; // Weight for face detection availability drop
+const AVAILABILITY_DROP_THRESHOLD = 0.90; // Availability drops below 90%
+
+const OCCLUDED_ENTER_FRAMES = 10;
+const OCCLUDED_EXIT_FRAMES = 5;
+
+const faceDetectionHistory = [];        // Sliding history of face detection booleans (true = detected, false = not)
+let occlusionState = "NORMAL";          // Stable state variable: "NORMAL" or "OCCLUDED"
+let occludedEnterFramesCounter = 0;
+let occludedExitFramesCounter = 0;
+
 const video = document.getElementById("cameraVideo");
 const overlayCanvas = document.getElementById("overlayCanvas");
 const overlayCtx = overlayCanvas.getContext("2d");
 const faceStatus = document.getElementById("faceStatus");
 const captureBtn = document.getElementById("captureBtn");
-const debugFaces = document.getElementById("debugFaces");
-const debugWidth = document.getElementById("debugWidth");
-const debugHeight = document.getElementById("debugHeight");
-const debugConfidence = document.getElementById("debugConfidence");
-const debugOffsetX = document.getElementById("debugOffsetX");
-const debugOffsetY = document.getElementById("debugOffsetY");
 
 const previewModal = document.getElementById("photoPreviewModal");
 const previewImage = document.getElementById("previewImage");
@@ -68,7 +87,7 @@ async function loadData() {
     if (!res.ok) throw new Error("bad response");
     return await res.json();
   } catch (err) {
-    console.warn("Falling back to inline data (serve via a local server to load walkin-photo-data.json):", err.message);
+    // console.warn("Falling back to inline data (serve via a local server to load walkin-photo-data.json):", err.message);
     return FALLBACK_DATA;
   }
 }
@@ -104,345 +123,360 @@ function renderTip(tip) {
 
 async function initializeFaceLandmarker() {
 
-    const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-    );
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+  );
 
-    faceLandmarker = await FaceLandmarker.createFromOptions(
-        vision,
-        {
-            baseOptions: {
-                modelAssetPath:
-                    "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task"
-            },
+  faceLandmarker = await FaceLandmarker.createFromOptions(
+    vision,
+    {
+      baseOptions: {
+        modelAssetPath:
+          "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task"
+      },
 
-            runningMode: "VIDEO",
-            outputFaceBlendshapes: true
-        }
-    );
+      runningMode: "VIDEO",
+      outputFaceBlendshapes: true
+    }
+  );
 
-    console.log("✅ Face Landmarker Ready");
+  // console.log("✅ Face Landmarker Ready");
 }
 
 function distancePx(p1, p2) {
-    if (!p1 || !p2) return 0;
-    const dx = (p1.x - p2.x) * overlayCanvas.width;
-    const dy = (p1.y - p2.y) * overlayCanvas.height;
-    return Math.sqrt(dx * dx + dy * dy);
+  if (!p1 || !p2) return 0;
+  const dx = (p1.x - p2.x) * overlayCanvas.width;
+  const dy = (p1.y - p2.y) * overlayCanvas.height;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 
 function detectFaces() {
 
-    if (!isDetecting) {
-        return;
-    }
+  if (!isDetecting) {
+    return;
+  }
 
-    if (!faceLandmarker) {
-        return;
-    }
+  if (!faceLandmarker) {
+    return;
+  }
 
-    if (video.readyState < 2) {
-        requestAnimationFrame(detectFaces);
-        return;
-    }
+  if (video.readyState < 2) {
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    // 🧹 Clear the previous frame's drawings
-    overlayCtx.clearRect(
-        0,
-        0,
-        overlayCanvas.width,
-        overlayCanvas.height
+  // 🧹 Clear the previous frame's drawings
+  overlayCtx.clearRect(
+    0,
+    0,
+    overlayCanvas.width,
+    overlayCanvas.height
+  );
+
+  // 👇 Ask MediaPipe to detect faces in the current frame
+  const results =
+    faceLandmarker.detectForVideo(
+      video,
+      performance.now()
     );
 
-    // 👇 Ask MediaPipe to detect faces in the current frame
-    const results =
-        faceLandmarker.detectForVideo(
-            video,
-            performance.now()
-        );
+  // Get all detected faces
+  const faces = results.faceLandmarks || [];
+  const numberOfFaces = faces.length;
 
-    // Get all detected faces
-    const faces = results.faceLandmarks || [];
-    const numberOfFaces = faces.length;
-    debugFaces.textContent = numberOfFaces;
+  // Track face detection availability over the sliding window
+  const hasFace = numberOfFaces > 0;
+  faceDetectionHistory.push(hasFace);
+  if (faceDetectionHistory.length > DETECTION_WINDOW_SIZE) {
+    faceDetectionHistory.shift();
+  }
+  const detectedCount = faceDetectionHistory.filter(Boolean).length;
+  const detectionAvailability = faceDetectionHistory.length > 0 ? (detectedCount / faceDetectionHistory.length) : 0;
 
-    if (numberOfFaces === 0) {
+  // Helpers to handle resets when face is not available
+  const clearDebugPanelAndDisable = () => {
+    captureBtn.disabled = true;
+    mouthChinHistory.length = 0;
+  };
 
-        faceStatus.textContent = "No face detected";
+  const updateDebugOcclusion = () => {
+    // Debug UI is removed; do nothing
+  };
 
-        captureBtn.disabled = true;
-        debugWidth.textContent = "-";
-        debugHeight.textContent = "-";
-        debugConfidence.textContent = "-";
-        debugOffsetX.textContent = "-";
-        debugOffsetY.textContent = "-";
+  const resetOcclusionCounters = () => {
+    occludedEnterFramesCounter = 0;
+    occludedExitFramesCounter = 0;
+    occlusionState = "NORMAL";
+  };
 
-        // Clear custom metrics
-        document.getElementById("debugNoseToChin").textContent = "-";
-        document.getElementById("debugFaceHeight").textContent = "-";
-        document.getElementById("debugNoseChinRatio").textContent = "-";
-        document.getElementById("debugMouthWidth").textContent = "-";
-        document.getElementById("debugMouthHeight").textContent = "-";
-        document.getElementById("debugMouthRatio").textContent = "-";
-        document.getElementById("debugJitter").textContent = "-";
-        document.getElementById("debugBlendshapes").textContent = "-";
-        mouthChinHistory.length = 0;
-
-    }
-
-    else if (numberOfFaces > 1) {
-
-        faceStatus.textContent = "Only one person should appear";
-
-        captureBtn.disabled = true;
-
-        // Clear custom metrics
-        document.getElementById("debugNoseToChin").textContent = "-";
-        document.getElementById("debugFaceHeight").textContent = "-";
-        document.getElementById("debugNoseChinRatio").textContent = "-";
-        document.getElementById("debugMouthWidth").textContent = "-";
-        document.getElementById("debugMouthHeight").textContent = "-";
-        document.getElementById("debugMouthRatio").textContent = "-";
-        document.getElementById("debugJitter").textContent = "-";
-        document.getElementById("debugBlendshapes").textContent = "-";
-        mouthChinHistory.length = 0;
-
-    }
-
-
-
-
-    if (faces.length > 0) {
-
-        // Take the first detected face landmarks
-        const landmarks = faces[0];
-
-        // 1. Nose-to-chin distance
-        const noseToChin = distancePx(landmarks[4], landmarks[152]);
-
-        // 2. Forehead-to-chin distance (Face Height)
-        const faceHeight = distancePx(landmarks[10], landmarks[152]);
-
-        // 3. Ratio
-        const noseChinRatio = faceHeight > 0 ? (noseToChin / faceHeight) : 0;
-
-        // 4. Mouth width (left corner 61, right corner 291)
-        const mouthWidth = distancePx(landmarks[61], landmarks[291]);
-
-        // 5. Mouth height (upper lip center outer 0, lower lip center outer 17)
-        const mouthHeight = distancePx(landmarks[0], landmarks[17]);
-
-        // 6. Mouth aspect ratio
-        const mouthRatio = mouthHeight > 0 ? (mouthWidth / mouthHeight) : 0;
-
-        // 7. Landmark stability/jitter over recent frames
-        const anchor = landmarks[4]; // nose tip as anchor to cancel translation
-        const currentFrame = {
-            pt61: { x: (landmarks[61].x - anchor.x) * overlayCanvas.width, y: (landmarks[61].y - anchor.y) * overlayCanvas.height },
-            pt291: { x: (landmarks[291].x - anchor.x) * overlayCanvas.width, y: (landmarks[291].y - anchor.y) * overlayCanvas.height },
-            pt152: { x: (landmarks[152].x - anchor.x) * overlayCanvas.width, y: (landmarks[152].y - anchor.y) * overlayCanvas.height }
-        };
-        mouthChinHistory.push(currentFrame);
-        if (mouthChinHistory.length > JITTER_HISTORY_LENGTH) {
-            mouthChinHistory.shift();
-        }
-
-        let jitterVal = 0;
-        if (mouthChinHistory.length > 1) {
-            const pointsKeys = ['pt61', 'pt291', 'pt152'];
-            let sumStdDev = 0;
-            for (const key of pointsKeys) {
-                let sumX = 0, sumY = 0;
-                for (const frame of mouthChinHistory) {
-                    sumX += frame[key].x;
-                    sumY += frame[key].y;
-                }
-                const meanX = sumX / mouthChinHistory.length;
-                const meanY = sumY / mouthChinHistory.length;
-
-                let varX = 0, varY = 0;
-                for (const frame of mouthChinHistory) {
-                    varX += Math.pow(frame[key].x - meanX, 2);
-                    varY += Math.pow(frame[key].y - meanY, 2);
-                }
-                const stdDevX = Math.sqrt(varX / mouthChinHistory.length);
-                const stdDevY = Math.sqrt(varY / mouthChinHistory.length);
-
-                sumStdDev += Math.sqrt(stdDevX * stdDevX + stdDevY * stdDevY);
-            }
-            jitterVal = sumStdDev / pointsKeys.length;
-        }
-
-        // 8. Available mouth-related blendshapes
-        let mouthShapesText = "N/A";
-        if (results.faceBlendshapes && results.faceBlendshapes.length > 0) {
-            const categories = results.faceBlendshapes[0].categories;
-            const mouthShapes = {};
-            for (const cat of categories) {
-                if (cat.categoryName.startsWith("mouth") || cat.categoryName.startsWith("jaw") || cat.categoryName.startsWith("lip")) {
-                    mouthShapes[cat.categoryName] = cat.score;
-                }
-            }
-            mouthShapesText = `Smile L/R: ${mouthShapes['mouthSmileLeft']?.toFixed(2)}/${mouthShapes['mouthSmileRight']?.toFixed(2)}, Pucker: ${mouthShapes['mouthPucker']?.toFixed(2)}, Jaw Open: ${mouthShapes['jawOpen']?.toFixed(2)}`;
-        }
-
-        // Update DOM elements
-        document.getElementById("debugNoseToChin").textContent = noseToChin.toFixed(1);
-        document.getElementById("debugFaceHeight").textContent = faceHeight.toFixed(1);
-        document.getElementById("debugNoseChinRatio").textContent = noseChinRatio.toFixed(3);
-        document.getElementById("debugMouthWidth").textContent = mouthWidth.toFixed(1);
-        document.getElementById("debugMouthHeight").textContent = mouthHeight.toFixed(1);
-        document.getElementById("debugMouthRatio").textContent = mouthRatio.toFixed(2);
-        document.getElementById("debugJitter").textContent = jitterVal.toFixed(2);
-        document.getElementById("debugBlendshapes").textContent = mouthShapesText;
-
-        // Compute Bounding Box from normalized landmarks
-        let minX = Infinity;
-        let maxX = -Infinity;
-        let minY = Infinity;
-        let maxY = -Infinity;
-        for (const lm of landmarks) {
-            if (lm.x < minX) minX = lm.x;
-            if (lm.x > maxX) maxX = lm.x;
-            if (lm.y < minY) minY = lm.y;
-            if (lm.y > maxY) maxY = lm.y;
-        }
-
-        const box = {
-            originX: minX * overlayCanvas.width,
-            originY: minY * overlayCanvas.height,
-            width: (maxX - minX) * overlayCanvas.width,
-            height: (maxY - minY) * overlayCanvas.height
-        };
-
-        // Calculate the center of the detected face
-        const faceCenterX = box.originX + (box.width / 2);
-        const faceCenterY = box.originY + (box.height / 2);
-
-        // Calculate the center of the camera
-        const cameraCenterX = overlayCanvas.width / 2;
-        const cameraCenterY = overlayCanvas.height / 2;
-
-        // Calculate how far the face is from the center
-        const offsetX = faceCenterX - cameraCenterX;
-        const offsetY = faceCenterY - cameraCenterY;
-
-        debugOffsetX.textContent = Math.round(offsetX);
-        debugOffsetY.textContent = Math.round(offsetY);
-
-        let isFaceSizeValid = false;
-        let isFaceCentered = false;
-
-        if (box.width < MIN_FACE_WIDTH) {
-
-            faceStatus.textContent = "Move closer";
-
-        }
-        else if (box.width > MAX_FACE_WIDTH) {
-
-            faceStatus.textContent = "Move slightly back";
-
-        }
-        else {
-
-            isFaceSizeValid = true;
-
-            if (offsetX < -CENTER_TOLERANCE_X) {
-
-                faceStatus.textContent = "Move Left";
-
-            }
-            else if (offsetX > CENTER_TOLERANCE_X) {
-
-                faceStatus.textContent = "Move Right";
-
-            }
-            else if (offsetY < MIN_OFFSET_Y) {
-
-                faceStatus.textContent = "Move Down";
-
-            }
-            else if (offsetY > MAX_OFFSET_Y) {
-
-                faceStatus.textContent = "Move Up";
-
-            }
-            else {
-
-                faceStatus.textContent = "Good position";
-
-                isFaceCentered = true;
-            }
-        }
-
-        captureBtn.disabled = !(isFaceSizeValid && isFaceCentered);
-
-        debugWidth.textContent = Math.round(box.width);
-
-        debugHeight.textContent = Math.round(box.height);
-
-        debugConfidence.textContent = "1.00";
-
-        overlayCtx.strokeStyle = "lime";
-        overlayCtx.lineWidth = 4;
-
-        overlayCtx.strokeRect(
-            box.originX,
-            box.originY,
-            box.width,
-            box.height
-        );
-    }
-
+  // Evaluate priority validations:
+  // 1. No face detected
+  if (numberOfFaces === 0) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "No face detected";
+    clearDebugPanelAndDisable();
     requestAnimationFrame(detectFaces);
-}
+    return;
+  }
+
+  // 2. Multiple faces detected
+  if (numberOfFaces > 1) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Only one person should appear";
+    clearDebugPanelAndDisable();
+    requestAnimationFrame(detectFaces);
+    return;
+  }
+
+  // Since numberOfFaces === 1, we can compute landmarks and bounding box
+  const landmarks = faces[0];
+
+  // Compute Bounding Box from normalized landmarks
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const lm of landmarks) {
+    if (lm.x < minX) minX = lm.x;
+    if (lm.x > maxX) maxX = lm.x;
+    if (lm.y < minY) minY = lm.y;
+    if (lm.y > maxY) maxY = lm.y;
+  }
+
+  const box = {
+    originX: minX * overlayCanvas.width,
+    originY: minY * overlayCanvas.height,
+    width: (maxX - minX) * overlayCanvas.width,
+    height: (maxY - minY) * overlayCanvas.height
+  };
+
+  // Calculate the center of the detected face
+  const faceCenterX = box.originX + (box.width / 2);
+  const faceCenterY = box.originY + (box.height / 2);
+
+  // Calculate the center of the camera
+  const cameraCenterX = overlayCanvas.width / 2;
+  const cameraCenterY = overlayCanvas.height / 2;
+
+  // Calculate how far the face is from the center
+  const offsetX = faceCenterX - cameraCenterX;
+  const offsetY = faceCenterY - cameraCenterY;
 
 
-function calculateBlur(canvas) {
+  // 3. Face too close / too far
+  if (box.width < MIN_FACE_WIDTH) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move closer";
+    captureBtn.disabled = true;
+    // Draw bounding box
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    const ctx = canvas.getContext("2d");
+  if (box.width > MAX_FACE_WIDTH) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move slightly back";
+    captureBtn.disabled = true;
+    // Draw bounding box
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    const { width, height } = canvas;
+  // 4. Face not centered
+  if (offsetX < -CENTER_TOLERANCE_X) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move Left";
+    captureBtn.disabled = true;
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    const imageData = ctx.getImageData(0, 0, width, height);
+  if (offsetX > CENTER_TOLERANCE_X) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move Right";
+    captureBtn.disabled = true;
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    const pixels = imageData.data;
+  if (offsetY < MIN_OFFSET_Y) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move Down";
+    captureBtn.disabled = true;
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    let edgeStrength = 0;
-    let count = 0;
+  if (offsetY > MAX_OFFSET_Y) {
+    resetOcclusionCounters();
+    updateDebugOcclusion();
+    faceStatus.textContent = "Move Up";
+    captureBtn.disabled = true;
+    overlayCtx.strokeStyle = "lime";
+    overlayCtx.lineWidth = 4;
+    overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+    requestAnimationFrame(detectFaces);
+    return;
+  }
 
-    for (let y = 1; y < height - 1; y++) {
+  // Positioning is valid! Evaluate occlusion validation (Priority 5) using the existing algorithm
+  const noseToChin = distancePx(landmarks[4], landmarks[152]);
+  const faceHeight = distancePx(landmarks[10], landmarks[152]);
+  const noseChinRatio = faceHeight > 0 ? (noseToChin / faceHeight) : 0;
+  const mouthWidth = distancePx(landmarks[61], landmarks[291]);
+  const mouthHeight = distancePx(landmarks[0], landmarks[17]);
+  const mouthRatio = mouthHeight > 0 ? (mouthWidth / mouthHeight) : 0;
 
-        for (let x = 1; x < width - 1; x++) {
+  // Jitter tracking
+  const anchor = landmarks[4];
+  const currentFrame = {
+    pt61: { x: (landmarks[61].x - anchor.x) * overlayCanvas.width, y: (landmarks[61].y - anchor.y) * overlayCanvas.height },
+    pt291: { x: (landmarks[291].x - anchor.x) * overlayCanvas.width, y: (landmarks[291].y - anchor.y) * overlayCanvas.height },
+    pt152: { x: (landmarks[152].x - anchor.x) * overlayCanvas.width, y: (landmarks[152].y - anchor.y) * overlayCanvas.height }
+  };
+  mouthChinHistory.push(currentFrame);
+  if (mouthChinHistory.length > JITTER_HISTORY_LENGTH) {
+    mouthChinHistory.shift();
+  }
 
-            const center = (y * width + x) * 4;
+  let jitterVal = 0;
+  if (mouthChinHistory.length > 1) {
+    const pointsKeys = ['pt61', 'pt291', 'pt152'];
+    let sumStdDev = 0;
+    for (const key of pointsKeys) {
+      let sumX = 0, sumY = 0;
+      for (const frame of mouthChinHistory) {
+        sumX += frame[key].x;
+        sumY += frame[key].y;
+      }
+      const meanX = sumX / mouthChinHistory.length;
+      const meanY = sumY / mouthChinHistory.length;
 
-            const left = (y * width + (x - 1)) * 4;
-            const right = (y * width + (x + 1)) * 4;
+      let varX = 0, varY = 0;
+      for (const frame of mouthChinHistory) {
+        varX += Math.pow(frame[key].x - meanX, 2);
+        varY += Math.pow(frame[key].y - meanY, 2);
+      }
+      const stdDevX = Math.sqrt(varX / mouthChinHistory.length);
+      const stdDevY = Math.sqrt(varY / mouthChinHistory.length);
 
-            const top = ((y - 1) * width + x) * 4;
-            const bottom = ((y + 1) * width + x) * 4;
-
-            const gx =
-                Math.abs(pixels[right] - pixels[left]) +
-                Math.abs(pixels[right + 1] - pixels[left + 1]) +
-                Math.abs(pixels[right + 2] - pixels[left + 2]);
-
-            const gy =
-                Math.abs(pixels[bottom] - pixels[top]) +
-                Math.abs(pixels[bottom + 1] - pixels[top + 1]) +
-                Math.abs(pixels[bottom + 2] - pixels[top + 2]);
-
-            edgeStrength += gx + gy;
-
-            count++;
-        }
+      sumStdDev += Math.sqrt(stdDevX * stdDevX + stdDevY * stdDevY);
     }
+    jitterVal = sumStdDev / pointsKeys.length;
+  }
 
-    return edgeStrength / count;
+  // Mouth shapes
+  let mouthShapesText = "N/A";
+  if (results.faceBlendshapes && results.faceBlendshapes.length > 0) {
+    const categories = results.faceBlendshapes[0].categories;
+    const mouthShapes = {};
+    for (const cat of categories) {
+      if (cat.categoryName.startsWith("mouth") || cat.categoryName.startsWith("jaw") || cat.categoryName.startsWith("lip")) {
+        mouthShapes[cat.categoryName] = cat.score;
+      }
+    }
+    mouthShapesText = `Smile L/R: ${mouthShapes['mouthSmileLeft']?.toFixed(2)}/${mouthShapes['mouthSmileRight']?.toFixed(2)}, Pucker: ${mouthShapes['mouthPucker']?.toFixed(2)}, Jaw Open: ${mouthShapes['jawOpen']?.toFixed(2)}`;
+  }
 
+  // Update DOM debug metrics
+
+  // --- Weighted Occlusion Decision Logic ---
+  // 1. Primary Signal: Nose-to-face-height (nose-chin) ratio.
+  // A strong deviation (ratio < NOSE_CHIN_RATIO_PRIMARY) is assigned full score (1.0) to directly flag occlusion.
+  // A mild deviation (ratio < NOSE_CHIN_RATIO_SUPPORT) is assigned 0.6.
+  let noseRatioScore = 0;
+  if (noseChinRatio < NOSE_CHIN_RATIO_PRIMARY) {
+    noseRatioScore = NOSE_RATIO_PRIMARY_SCORE;
+  } else if (noseChinRatio < NOSE_CHIN_RATIO_SUPPORT) {
+    noseRatioScore = NOSE_RATIO_SUPPORT_SCORE;
+  }
+
+  // 2. Supporting Signals: Jitter and face availability.
+  // High mouth-related landmarker jitter indicates tracking instability due to occlusion.
+  const jitterScore = (jitterVal > JITTER_THRESHOLD) ? JITTER_SUPPORT_SCORE : 0;
+
+  // Face detection availability dropping (meaning the landmarker occasionally loses the face completely)
+  // indicates occlusion is causing face landmarker to drop tracking.
+  const availabilityScore = (detectionAvailability < AVAILABILITY_DROP_THRESHOLD) ? AVAILABILITY_SUPPORT_SCORE : 0;
+
+  // 3. Combine scores. We do not require every signal to agree simultaneously.
+  // A strong primary ratio deviation alone is enough (1.0 >= 1.0).
+  // A mild ratio deviation (0.6) combined with either high jitter (0.5) or low availability (0.5) reaches 1.1 >= 1.0.
+  // Even a normal ratio (0.0) combined with BOTH high jitter (0.5) and low availability (0.5) reaches 1.0 >= 1.0.
+  const totalOcclusionScore = noseRatioScore + jitterScore + availabilityScore;
+  const isOccluded = totalOcclusionScore >= OCCLUSION_SCORE_THRESHOLD;
+
+  // Apply hysteresis state transitions
+  if (isOccluded) {
+    if (occlusionState === "NORMAL") {
+      occludedEnterFramesCounter++;
+      occludedExitFramesCounter = 0;
+      if (occludedEnterFramesCounter >= OCCLUDED_ENTER_FRAMES) {
+        occlusionState = "OCCLUDED";
+      }
+    } else {
+      // Already OCCLUDED, maintain state and reset counters
+      occludedEnterFramesCounter = 0;
+      occludedExitFramesCounter = 0;
+    }
+  } else {
+    if (occlusionState === "OCCLUDED") {
+      occludedExitFramesCounter++;
+      occludedEnterFramesCounter = 0;
+      if (occludedExitFramesCounter >= OCCLUDED_EXIT_FRAMES) {
+        occlusionState = "NORMAL";
+      }
+    } else {
+      // Already NORMAL, maintain state and reset counters
+      occludedEnterFramesCounter = 0;
+      occludedExitFramesCounter = 0;
+    }
+  }
+
+  updateDebugOcclusion();
+
+  // Set visual status and enable/disable capture based on occlusion state
+  if (occlusionState === "OCCLUDED") {
+    faceStatus.textContent = "Please uncover your face.";
+    captureBtn.disabled = true;
+  } else {
+    // 6. Good position
+    faceStatus.textContent = "Good position";
+    captureBtn.disabled = false;
+  }
+
+  // Draw bounding box
+  overlayCtx.strokeStyle = "lime";
+  overlayCtx.lineWidth = 4;
+  overlayCtx.strokeRect(box.originX, box.originY, box.width, box.height);
+
+  requestAnimationFrame(detectFaces);
 }
+
+
 
 
 
@@ -451,30 +485,6 @@ function calculateBlur(canvas) {
 (async function init() {
   const data = await loadData();
 
-  const debugPanel = document.getElementById("debugPanel");
-  if (debugPanel) {
-    const divider = document.createElement("div");
-    divider.style.borderTop = "1px solid #d6dbe8";
-    divider.style.margin = "10px 0";
-    debugPanel.appendChild(divider);
-
-    const metrics = [
-      { id: "debugNoseToChin", label: "Nose-Chin" },
-      { id: "debugFaceHeight", label: "Face H" },
-      { id: "debugNoseChinRatio", label: "N-C/H Ratio" },
-      { id: "debugMouthWidth", label: "Mouth W" },
-      { id: "debugMouthHeight", label: "Mouth H" },
-      { id: "debugMouthRatio", label: "Mouth Ratio" },
-      { id: "debugJitter", label: "Mouth Jitter" },
-      { id: "debugBlendshapes", label: "Mouth Shapes" }
-    ];
-
-    metrics.forEach(m => {
-      const div = document.createElement("div");
-      div.innerHTML = `${m.label}: <span id="${m.id}">-</span>`;
-      debugPanel.appendChild(div);
-    });
-  }
 
   document.getElementById("brandTitle").textContent = data.brand.title;
   document.getElementById("faceTitle").textContent = data.face.title;
@@ -490,7 +500,7 @@ function calculateBlur(canvas) {
     window.location.href = data.backLink;
   });
 
-  
+
   const placeholder = document.getElementById("cameraPlaceholder");
   const canvas = document.getElementById("captureCanvas");
   captureBtn.disabled = true;
@@ -516,69 +526,51 @@ function calculateBlur(canvas) {
     video.hidden = false;
     placeholder.hidden = true;
   } catch (err) {
-    console.warn("Camera unavailable, continuing without a live preview:", err.message);
+    // console.warn("Camera unavailable, continuing without a live preview:", err.message);
   }
 
   document.getElementById("captureBtn").addEventListener("click", async () => {
-  if (!stream) {
-    console.warn("No camera stream available.");
-    return;
-  }
-
-  // 1. Capture the current video frame onto the canvas
-  canvas.width = video.videoWidth || 320;
-  canvas.height = video.videoHeight || 320;
-
-  canvas
-    .getContext("2d")
-    .drawImage(video, 0, 0, canvas.width, canvas.height);
-
-
-
-
-    try {
-
-    const blurScore = calculateBlur(canvas);
-
-    console.log("Blur Score:", blurScore);
-
-    alert("Blur Score: " + blurScore);
-
-} catch (err) {
-
-    console.error("Blur Error:", err);
-
-    alert(err.message);
-
-}
-
-  // 2. Convert the canvas image into a Blob
-  // canvas.toBlob(
-  //   async (blob) => {
-  //     if (!blob) {
-  //       console.error("Could not create photo blob.");
-  //       return;
-  //     }
-
-  canvas.toBlob((blob) => {
-
-    if (!blob) {
-        console.error("Could not create photo blob.");
-        return;
+    if (!stream) {
+      // console.warn("No camera stream available.");
+      return;
     }
 
-    capturedBlob = blob;
+    // 1. Capture the current video frame onto the canvas
+    canvas.width = video.videoWidth || 320;
+    canvas.height = video.videoHeight || 320;
 
-    previewImage.src = URL.createObjectURL(blob);
-
-    previewModal.hidden = false;
-
-}, "image/jpeg", 0.85);
-
-});
+    canvas
+      .getContext("2d")
+      .drawImage(video, 0, 0, canvas.width, canvas.height);
 
 
-retakeBtn.addEventListener("click", () => {
+    // 2. Convert the canvas image into a Blob
+    // canvas.toBlob(
+    //   async (blob) => {
+    //     if (!blob) {
+    //       console.error("Could not create photo blob.");
+    //       return;
+    //     }
+
+    canvas.toBlob((blob) => {
+
+      if (!blob) {
+        console.error("Could not create photo blob.");
+        return;
+      }
+
+      capturedBlob = blob;
+
+      previewImage.src = URL.createObjectURL(blob);
+
+      previewModal.hidden = false;
+
+    }, "image/jpeg", 0.85);
+
+  });
+
+
+  retakeBtn.addEventListener("click", () => {
 
     previewModal.hidden = true;
 
@@ -588,72 +580,72 @@ retakeBtn.addEventListener("click", () => {
 
     capturedBlob = null;
 
-});
+  });
 
-continueBtn.addEventListener("click", async () => {
-  if (!capturedBlob) {
-        return;
+  continueBtn.addEventListener("click", async () => {
+    if (!capturedBlob) {
+      return;
     }
 
-  continueBtn.disabled = true;
-        try {
-        // 3. Create multipart/form-data
-        const formData = new FormData();
+    continueBtn.disabled = true;
+    try {
+      // 3. Create multipart/form-data
+      const formData = new FormData();
 
-        formData.append(
-    "photo",
-    capturedBlob,
-    "visitor-photo.jpg"
-);
+      formData.append(
+        "photo",
+        capturedBlob,
+        "visitor-photo.jpg"
+      );
 
-        // 4. Send the photo to our backend
-        const response = await fetch(
-          "http://localhost:5000/api/registration/photo",
-          {
-            method: "POST",
-            body: formData
-          }
-        );
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            result.error || "Photo upload failed."
-          );
+      // 4. Send the photo to our backend
+      const response = await fetch(
+        "http://localhost:5000/api/registration/photo",
+        {
+          method: "POST",
+          body: formData
         }
+      );
 
-        // 5. Temporarily hold the returned Supabase photo URL
-        sessionStorage.setItem(
-          "eduGateWalkinPhotoUrl",
-          result.photo_url
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Photo upload failed."
         );
-
-        console.log(
-          "Photo uploaded successfully:",
-          result.photo_url
-        );
-        isDetecting = false;
-        // 6. Stop the camera
-        stream
-          .getTracks()
-          .forEach((track) => track.stop());
-
-          previewModal.hidden = true;
-
-        // 7. Continue to visitor details
-        window.location.href = data.nextPage;
-
-      } catch (error) {
-        console.error(
-          "Photo upload error:",
-          error
-        );
-        continueBtn.disabled = false;
       }
 
+      // 5. Temporarily hold the returned Supabase photo URL
+      sessionStorage.setItem(
+        "eduGateWalkinPhotoUrl",
+        result.photo_url
+      );
 
-});
+      // console.log(
+      //   "Photo uploaded successfully:",
+      //   result.photo_url
+      // );
+      isDetecting = false;
+      // 6. Stop the camera
+      stream
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      previewModal.hidden = true;
+
+      // 7. Continue to visitor details
+      window.location.href = data.nextPage;
+
+    } catch (error) {
+      // console.error(
+      //   "Photo upload error:",
+      //   error
+      // );
+      continueBtn.disabled = false;
+    }
+
+
+  });
 })();
 
 //       try {

@@ -68,15 +68,7 @@
     Looking for a face...
 </p>
 
-<div id="debugPanel" class="debug-panel">
-    <div>Faces : <span id="debugFaces">0</span></div>
-    <div>Width : <span id="debugWidth">0</span></div>
-    <div>Height : <span id="debugHeight">0</span></div>
-    <div>Confidence : <span id="debugConfidence">0</span></div>
 
-    <div>Offset X : <span id="debugOffsetX">0</span></div>
-    <div>Offset Y : <span id="debugOffsetY">0</span></div>
-</div>
 
 
         <div class="tips-row" id="tipsRow"><!-- tips injected by walkin-photo.js --></div>
@@ -97,27 +89,17 @@
 
 <script type="module" src="walkin-photo.js"></script>
 <div id="photoPreviewModal" class="preview-modal" hidden>
-
     <div class="preview-box">
-
         <h2>Preview Photo</h2>
-
-        <img id="previewImage">
-
-        <div class="preview-buttons">
-
-            <button id="retakeBtn">
-                Retake
-            </button>
-
-            <button id="continueBtn">
-                Continue
-            </button>
-
+        <p class="preview-subtitle">Please verify your photo before continuing.</p>
+        <div class="preview-img-container">
+            <img id="previewImage" alt="Captured preview">
         </div>
-
+        <div class="preview-buttons">
+            <button id="retakeBtn" type="button">Retake</button>
+            <button id="continueBtn" type="button">Continue</button>
+        </div>
     </div>
-
 </div>
 </body>
 </html>
