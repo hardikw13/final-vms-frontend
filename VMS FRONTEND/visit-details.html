@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EduGate VMS | Visit Details</title>
+<link rel="stylesheet" href="visit-details.css">
+</head>
+<body>
+
+  <div class="app-frame">
+
+    <header class="top-bar">
+      <button class="icon-btn back-btn" type="button" id="backBtn" aria-label="Go back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="brand-text"><h1>Visit Details</h1></div>
+    </header>
+
+    <main class="content">
+
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading details…</p>
+      </div>
+
+      <div id="errorState" class="error-state" style="display:none">
+        <p id="errorText">Could not load this visit.</p>
+      </div>
+
+      <div id="detailsContent" style="display:none">
+
+        <section class="detail-card">
+
+          <div class="detail-top">
+            <div class="avatar-lg" id="detailAvatar">--</div>
+            <div>
+              <p class="detail-name" id="detailName">—</p>
+              <p class="detail-sub" id="detailPurpose">—</p>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+
+            <div class="detail-item">
+              <span class="label">Email</span>
+              <span class="value" id="detailEmail">—</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="label">Phone</span>
+              <span class="value" id="detailPhone">—</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="label">Organization</span>
+              <span class="value" id="detailOrg">—</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="label">Visit Date</span>
+              <span class="value" id="detailDate">—</span>
+            </div>
+
+            <div class="detail-item">
+  <span class="label">Visit Created On</span>
+  <span class="value" id="detailCreatedOn">—</span>
+</div>
+
+
+
+            <div class="detail-item">
+              <span class="label">Status</span>
+              <span class="value" id="detailStatus">—</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="label">Host</span>
+              <span class="value" id="detailHost">—</span>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="visit-details.js"></script>
+</body>
+</html>

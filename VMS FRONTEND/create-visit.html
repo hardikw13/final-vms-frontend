@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" href="host-dashboard.css">
     <link rel="stylesheet" href="create-visit.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 </head>
 
 <body>
@@ -17,42 +19,39 @@
 
     <!-- Header -->
 
-    
-        <header class="top-bar">
+    <header class="top-bar">
 
-    <button class="icon-btn" id="backBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-    </button>
+        <button class="icon-btn" id="backBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
 
-   <div class="brand-icon" aria-hidden="true">
+        <div class="brand-icon" aria-hidden="true">
 
-    <svg viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2"
-         stroke-linecap="round"
-         stroke-linejoin="round">
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
 
-        <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
+                <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/>
 
-        <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/>
+                <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/>
 
-    </svg>
+            </svg>
 
-</div>
-    <div class="brand-text">
-        <div class="brand-title-row">
-            <h1>Invite Visitor</h1>
-            <span class="role-pill">Host</span>
         </div>
-        <p>Create a Pre-Approved Visit</p>
-    </div>
 
-</header>
-
+        <div class="brand-text">
+            <div class="brand-title-row">
+                <h1>Invite Visitor</h1>
+                <span class="role-pill">Host</span>
+            </div>
+            <p>Create a Pre-Approved Visit</p>
+        </div>
 
     </header>
 
@@ -62,12 +61,24 @@
 
         <section class="hero-card">
 
-            <h2>Invite a Visitor</h2>
+            <div class="hero-icon">
+                👤
+            </div>
 
-            <p>
-                Fill in the visitor details below.
-                A digital visitor pass will be generated after approval.
-            </p>
+            <div class="hero-content">
+
+                <h2>Invite a Visitor</h2>
+
+                <p>
+                    Fill in the visitor details below.
+                    A digital visitor pass will be generated after approval.
+                </p>
+
+            </div>
+
+            <div class="hero-plane">
+                ✈
+            </div>
 
         </section>
 
@@ -79,36 +90,39 @@
 
             <div class="form-group">
 
-                <label>Full Name</label>
+                <label>Full Name <span class="required-star">*</span></label>
 
                 <input
                     id="fullName"
                     type="text"
                     placeholder="Enter visitor name"
+                    required
                 >
 
             </div>
 
             <div class="form-group">
 
-                <label>Email Address</label>
+                <label>Email Address <span class="required-star">*</span></label>
 
                 <input
                     id="email"
                     type="email"
                     placeholder="visitor@example.com"
+                    required
                 >
 
             </div>
 
             <div class="form-group">
 
-                <label>Phone Number</label>
+                <label>Phone Number <span class="required-star">*</span></label>
 
                 <input
                     id="phone"
                     type="tel"
                     placeholder="+91 XXXXXXXXXX"
+                    required
                 >
 
             </div>
@@ -135,39 +149,26 @@
 
             <div class="form-group">
 
-                <label>Purpose</label>
+                <label>Purpose <span class="required-star">*</span></label>
 
                 <input
                     id="purpose"
                     type="text"
                     placeholder="Purpose of visit"
+                    required
                 >
 
             </div>
 
-            <div class="row">
+            <div class="form-group">
 
-                <div class="form-group">
+                <label>Visit Date <span class="required-star">*</span></label>
 
-                    <label>Visit Date</label>
-
-                    <input
-                        id="visitDate"
-                        type="date"
-                    >
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>Arrival Time</label>
-
-                    <input
-                        id="visitTime"
-                        type="time"
-                    >
-
-                </div>
+                <input
+                    id="visitDate"
+                    type="text"
+                    required
+                >
 
             </div>
 
@@ -200,5 +201,4 @@
 <script src="create-visit.js"></script>
 
 </body>
-
 </html>
