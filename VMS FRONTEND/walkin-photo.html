@@ -36,9 +36,48 @@
         <p id="faceSubtitle">Look directly at the camera for identity verification</p>
 
         <div class="camera-frame" id="cameraFrame">
-          <video id="cameraVideo" autoplay playsinline muted hidden></video>
-          <svg id="cameraPlaceholder" viewBox="0 0 24 24" fill="none" stroke="#3346e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><circle cx="12" cy="14" r="3.5"/><path d="M8 7l1.5-2.5h5L16 7"/></svg>
-        </div>
+
+  <video
+      id="cameraVideo"
+      autoplay
+      playsinline
+      muted
+      hidden>
+  </video>
+
+  <canvas id="overlayCanvas"></canvas>
+
+  <svg
+      id="cameraPlaceholder"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#3346e8"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+
+    <rect x="2" y="7" width="20" height="14" rx="2"/>
+    <circle cx="12" cy="14" r="3.5"/>
+    <path d="M8 7l1.5-2.5h5L16 7"/>
+
+  </svg>
+
+</div>
+
+<p id="faceStatus" class="face-status">
+    Looking for a face...
+</p>
+
+<div id="debugPanel" class="debug-panel">
+    <div>Faces : <span id="debugFaces">0</span></div>
+    <div>Width : <span id="debugWidth">0</span></div>
+    <div>Height : <span id="debugHeight">0</span></div>
+    <div>Confidence : <span id="debugConfidence">0</span></div>
+
+    <div>Offset X : <span id="debugOffsetX">0</span></div>
+    <div>Offset Y : <span id="debugOffsetY">0</span></div>
+</div>
+
 
         <div class="tips-row" id="tipsRow"><!-- tips injected by walkin-photo.js --></div>
       </section>
@@ -54,6 +93,31 @@
 
   </div>
 
-  <script src="walkin-photo.js"></script>
+  
+
+<script type="module" src="walkin-photo.js"></script>
+<div id="photoPreviewModal" class="preview-modal" hidden>
+
+    <div class="preview-box">
+
+        <h2>Preview Photo</h2>
+
+        <img id="previewImage">
+
+        <div class="preview-buttons">
+
+            <button id="retakeBtn">
+                Retake
+            </button>
+
+            <button id="continueBtn">
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 </body>
 </html>
