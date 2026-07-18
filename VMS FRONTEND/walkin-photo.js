@@ -1,9 +1,11 @@
 import {
-    FaceDetector,
+    FaceLandmarker,
     FilesetResolver
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
 
-let faceDetector;
+let faceLandmarker;
+const JITTER_HISTORY_LENGTH = 15;
+const mouthChinHistory = [];
 let isDetecting = false;
 let capturedBlob = null;
 const MIN_FACE_WIDTH = 180;
@@ -100,25 +102,33 @@ function renderTip(tip) {
 
 
 
-async function initializeFaceDetector() {
+async function initializeFaceLandmarker() {
 
     const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
 
-    faceDetector = await FaceDetector.createFromOptions(
+    faceLandmarker = await FaceLandmarker.createFromOptions(
         vision,
         {
             baseOptions: {
                 modelAssetPath:
-                    "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite"
+                    "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task"
             },
 
-            runningMode: "VIDEO"
+            runningMode: "VIDEO",
+            outputFaceBlendshapes: true
         }
     );
 
-    console.log("✅ Face Detector Ready");
+    console.log("✅ Face Landmarker Ready");
+}
+
+function distancePx(p1, p2) {
+    if (!p1 || !p2) return 0;
+    const dx = (p1.x - p2.x) * overlayCanvas.width;
+    const dy = (p1.y - p2.y) * overlayCanvas.height;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
 
@@ -128,7 +138,7 @@ function detectFaces() {
         return;
     }
 
-    if (!faceDetector) {
+    if (!faceLandmarker) {
         return;
     }
 
@@ -146,132 +156,246 @@ function detectFaces() {
     );
 
     // 👇 Ask MediaPipe to detect faces in the current frame
-const detections =
-    faceDetector.detectForVideo(
-        video,
-        performance.now()
-    );
+    const results =
+        faceLandmarker.detectForVideo(
+            video,
+            performance.now()
+        );
 
-// Get all detected faces
-const faces = detections.detections;
-const numberOfFaces = faces.length;
-debugFaces.textContent = numberOfFaces;
+    // Get all detected faces
+    const faces = results.faceLandmarks || [];
+    const numberOfFaces = faces.length;
+    debugFaces.textContent = numberOfFaces;
 
-if (numberOfFaces === 0) {
+    if (numberOfFaces === 0) {
 
-    faceStatus.textContent = "No face detected";
+        faceStatus.textContent = "No face detected";
 
-    captureBtn.disabled = true;
-    debugWidth.textContent = "-";
-debugHeight.textContent = "-";
-debugConfidence.textContent = "-";
-debugOffsetX.textContent = "-";
-debugOffsetY.textContent = "-";
+        captureBtn.disabled = true;
+        debugWidth.textContent = "-";
+        debugHeight.textContent = "-";
+        debugConfidence.textContent = "-";
+        debugOffsetX.textContent = "-";
+        debugOffsetY.textContent = "-";
 
-}
-
-else if (numberOfFaces > 1) {
-
-    faceStatus.textContent = "Only one person should appear";
-
-    captureBtn.disabled = true;
-
-}
-
-
-
-
-if (faces.length > 0) {
-
-    // Take the first detected face
-    const face = faces[0];
-
-// Bounding box
-const box = face.boundingBox;
-
-// Calculate the center of the detected face
-const faceCenterX = box.originX + (box.width / 2);
-const faceCenterY = box.originY + (box.height / 2);
-
-// Calculate the center of the camera
-const cameraCenterX = overlayCanvas.width / 2;
-const cameraCenterY = overlayCanvas.height / 2;
-
-// Calculate how far the face is from the center
-const offsetX = faceCenterX - cameraCenterX;
-const offsetY = faceCenterY - cameraCenterY;
-
-debugOffsetX.textContent = Math.round(offsetX);
-debugOffsetY.textContent = Math.round(offsetY);
-
-let isFaceSizeValid = false;
-let isFaceCentered = false;
-
-if (box.width < MIN_FACE_WIDTH) {
-
-    faceStatus.textContent = "Move closer";
-
-}
-else if (box.width > MAX_FACE_WIDTH) {
-
-    faceStatus.textContent = "Move slightly back";
-
-}
-else {
-
-    isFaceSizeValid = true;
-
-    if (offsetX < -CENTER_TOLERANCE_X) {
-
-        faceStatus.textContent = "Move Left";
+        // Clear custom metrics
+        document.getElementById("debugNoseToChin").textContent = "-";
+        document.getElementById("debugFaceHeight").textContent = "-";
+        document.getElementById("debugNoseChinRatio").textContent = "-";
+        document.getElementById("debugMouthWidth").textContent = "-";
+        document.getElementById("debugMouthHeight").textContent = "-";
+        document.getElementById("debugMouthRatio").textContent = "-";
+        document.getElementById("debugJitter").textContent = "-";
+        document.getElementById("debugBlendshapes").textContent = "-";
+        mouthChinHistory.length = 0;
 
     }
-    else if (offsetX > CENTER_TOLERANCE_X) {
 
-        faceStatus.textContent = "Move Right";
+    else if (numberOfFaces > 1) {
+
+        faceStatus.textContent = "Only one person should appear";
+
+        captureBtn.disabled = true;
+
+        // Clear custom metrics
+        document.getElementById("debugNoseToChin").textContent = "-";
+        document.getElementById("debugFaceHeight").textContent = "-";
+        document.getElementById("debugNoseChinRatio").textContent = "-";
+        document.getElementById("debugMouthWidth").textContent = "-";
+        document.getElementById("debugMouthHeight").textContent = "-";
+        document.getElementById("debugMouthRatio").textContent = "-";
+        document.getElementById("debugJitter").textContent = "-";
+        document.getElementById("debugBlendshapes").textContent = "-";
+        mouthChinHistory.length = 0;
 
     }
-    else if (offsetY < MIN_OFFSET_Y) {
 
-        faceStatus.textContent = "Move Down";
 
+
+
+    if (faces.length > 0) {
+
+        // Take the first detected face landmarks
+        const landmarks = faces[0];
+
+        // 1. Nose-to-chin distance
+        const noseToChin = distancePx(landmarks[4], landmarks[152]);
+
+        // 2. Forehead-to-chin distance (Face Height)
+        const faceHeight = distancePx(landmarks[10], landmarks[152]);
+
+        // 3. Ratio
+        const noseChinRatio = faceHeight > 0 ? (noseToChin / faceHeight) : 0;
+
+        // 4. Mouth width (left corner 61, right corner 291)
+        const mouthWidth = distancePx(landmarks[61], landmarks[291]);
+
+        // 5. Mouth height (upper lip center outer 0, lower lip center outer 17)
+        const mouthHeight = distancePx(landmarks[0], landmarks[17]);
+
+        // 6. Mouth aspect ratio
+        const mouthRatio = mouthHeight > 0 ? (mouthWidth / mouthHeight) : 0;
+
+        // 7. Landmark stability/jitter over recent frames
+        const anchor = landmarks[4]; // nose tip as anchor to cancel translation
+        const currentFrame = {
+            pt61: { x: (landmarks[61].x - anchor.x) * overlayCanvas.width, y: (landmarks[61].y - anchor.y) * overlayCanvas.height },
+            pt291: { x: (landmarks[291].x - anchor.x) * overlayCanvas.width, y: (landmarks[291].y - anchor.y) * overlayCanvas.height },
+            pt152: { x: (landmarks[152].x - anchor.x) * overlayCanvas.width, y: (landmarks[152].y - anchor.y) * overlayCanvas.height }
+        };
+        mouthChinHistory.push(currentFrame);
+        if (mouthChinHistory.length > JITTER_HISTORY_LENGTH) {
+            mouthChinHistory.shift();
+        }
+
+        let jitterVal = 0;
+        if (mouthChinHistory.length > 1) {
+            const pointsKeys = ['pt61', 'pt291', 'pt152'];
+            let sumStdDev = 0;
+            for (const key of pointsKeys) {
+                let sumX = 0, sumY = 0;
+                for (const frame of mouthChinHistory) {
+                    sumX += frame[key].x;
+                    sumY += frame[key].y;
+                }
+                const meanX = sumX / mouthChinHistory.length;
+                const meanY = sumY / mouthChinHistory.length;
+
+                let varX = 0, varY = 0;
+                for (const frame of mouthChinHistory) {
+                    varX += Math.pow(frame[key].x - meanX, 2);
+                    varY += Math.pow(frame[key].y - meanY, 2);
+                }
+                const stdDevX = Math.sqrt(varX / mouthChinHistory.length);
+                const stdDevY = Math.sqrt(varY / mouthChinHistory.length);
+
+                sumStdDev += Math.sqrt(stdDevX * stdDevX + stdDevY * stdDevY);
+            }
+            jitterVal = sumStdDev / pointsKeys.length;
+        }
+
+        // 8. Available mouth-related blendshapes
+        let mouthShapesText = "N/A";
+        if (results.faceBlendshapes && results.faceBlendshapes.length > 0) {
+            const categories = results.faceBlendshapes[0].categories;
+            const mouthShapes = {};
+            for (const cat of categories) {
+                if (cat.categoryName.startsWith("mouth") || cat.categoryName.startsWith("jaw") || cat.categoryName.startsWith("lip")) {
+                    mouthShapes[cat.categoryName] = cat.score;
+                }
+            }
+            mouthShapesText = `Smile L/R: ${mouthShapes['mouthSmileLeft']?.toFixed(2)}/${mouthShapes['mouthSmileRight']?.toFixed(2)}, Pucker: ${mouthShapes['mouthPucker']?.toFixed(2)}, Jaw Open: ${mouthShapes['jawOpen']?.toFixed(2)}`;
+        }
+
+        // Update DOM elements
+        document.getElementById("debugNoseToChin").textContent = noseToChin.toFixed(1);
+        document.getElementById("debugFaceHeight").textContent = faceHeight.toFixed(1);
+        document.getElementById("debugNoseChinRatio").textContent = noseChinRatio.toFixed(3);
+        document.getElementById("debugMouthWidth").textContent = mouthWidth.toFixed(1);
+        document.getElementById("debugMouthHeight").textContent = mouthHeight.toFixed(1);
+        document.getElementById("debugMouthRatio").textContent = mouthRatio.toFixed(2);
+        document.getElementById("debugJitter").textContent = jitterVal.toFixed(2);
+        document.getElementById("debugBlendshapes").textContent = mouthShapesText;
+
+        // Compute Bounding Box from normalized landmarks
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const lm of landmarks) {
+            if (lm.x < minX) minX = lm.x;
+            if (lm.x > maxX) maxX = lm.x;
+            if (lm.y < minY) minY = lm.y;
+            if (lm.y > maxY) maxY = lm.y;
+        }
+
+        const box = {
+            originX: minX * overlayCanvas.width,
+            originY: minY * overlayCanvas.height,
+            width: (maxX - minX) * overlayCanvas.width,
+            height: (maxY - minY) * overlayCanvas.height
+        };
+
+        // Calculate the center of the detected face
+        const faceCenterX = box.originX + (box.width / 2);
+        const faceCenterY = box.originY + (box.height / 2);
+
+        // Calculate the center of the camera
+        const cameraCenterX = overlayCanvas.width / 2;
+        const cameraCenterY = overlayCanvas.height / 2;
+
+        // Calculate how far the face is from the center
+        const offsetX = faceCenterX - cameraCenterX;
+        const offsetY = faceCenterY - cameraCenterY;
+
+        debugOffsetX.textContent = Math.round(offsetX);
+        debugOffsetY.textContent = Math.round(offsetY);
+
+        let isFaceSizeValid = false;
+        let isFaceCentered = false;
+
+        if (box.width < MIN_FACE_WIDTH) {
+
+            faceStatus.textContent = "Move closer";
+
+        }
+        else if (box.width > MAX_FACE_WIDTH) {
+
+            faceStatus.textContent = "Move slightly back";
+
+        }
+        else {
+
+            isFaceSizeValid = true;
+
+            if (offsetX < -CENTER_TOLERANCE_X) {
+
+                faceStatus.textContent = "Move Left";
+
+            }
+            else if (offsetX > CENTER_TOLERANCE_X) {
+
+                faceStatus.textContent = "Move Right";
+
+            }
+            else if (offsetY < MIN_OFFSET_Y) {
+
+                faceStatus.textContent = "Move Down";
+
+            }
+            else if (offsetY > MAX_OFFSET_Y) {
+
+                faceStatus.textContent = "Move Up";
+
+            }
+            else {
+
+                faceStatus.textContent = "Good position";
+
+                isFaceCentered = true;
+            }
+        }
+
+        captureBtn.disabled = !(isFaceSizeValid && isFaceCentered);
+
+        debugWidth.textContent = Math.round(box.width);
+
+        debugHeight.textContent = Math.round(box.height);
+
+        debugConfidence.textContent = "1.00";
+
+        overlayCtx.strokeStyle = "lime";
+        overlayCtx.lineWidth = 4;
+
+        overlayCtx.strokeRect(
+            box.originX,
+            box.originY,
+            box.width,
+            box.height
+        );
     }
-    else if (offsetY > MAX_OFFSET_Y) {
 
-        faceStatus.textContent = "Move Up";
-
-    }
-    else {
-
-        faceStatus.textContent = "Good position";
-
-        isFaceCentered = true;
-    }
-}
-
-captureBtn.disabled = !(isFaceSizeValid && isFaceCentered);
-
-
-
-    debugWidth.textContent = Math.round(box.width);
-
-debugHeight.textContent = Math.round(box.height);
-
-debugConfidence.textContent =
-    face.categories[0].score.toFixed(2);
-
-    overlayCtx.strokeStyle = "lime";
-    overlayCtx.lineWidth = 4;
-
-    overlayCtx.strokeRect(
-        box.originX,
-        box.originY,
-        box.width,
-        box.height
-    );
-}
-
-requestAnimationFrame(detectFaces);
+    requestAnimationFrame(detectFaces);
 }
 
 
@@ -326,7 +450,32 @@ function calculateBlur(canvas) {
 
 (async function init() {
   const data = await loadData();
-  
+
+  const debugPanel = document.getElementById("debugPanel");
+  if (debugPanel) {
+    const divider = document.createElement("div");
+    divider.style.borderTop = "1px solid #d6dbe8";
+    divider.style.margin = "10px 0";
+    debugPanel.appendChild(divider);
+
+    const metrics = [
+      { id: "debugNoseToChin", label: "Nose-Chin" },
+      { id: "debugFaceHeight", label: "Face H" },
+      { id: "debugNoseChinRatio", label: "N-C/H Ratio" },
+      { id: "debugMouthWidth", label: "Mouth W" },
+      { id: "debugMouthHeight", label: "Mouth H" },
+      { id: "debugMouthRatio", label: "Mouth Ratio" },
+      { id: "debugJitter", label: "Mouth Jitter" },
+      { id: "debugBlendshapes", label: "Mouth Shapes" }
+    ];
+
+    metrics.forEach(m => {
+      const div = document.createElement("div");
+      div.innerHTML = `${m.label}: <span id="${m.id}">-</span>`;
+      debugPanel.appendChild(div);
+    });
+  }
+
   document.getElementById("brandTitle").textContent = data.brand.title;
   document.getElementById("faceTitle").textContent = data.face.title;
   document.getElementById("faceSubtitle").textContent = data.face.subtitle;
@@ -347,7 +496,7 @@ function calculateBlur(canvas) {
   captureBtn.disabled = true;
   let stream = null;
 
-  await initializeFaceDetector();
+  await initializeFaceLandmarker();
 
   // Try to start the camera; if it's unavailable or denied, we just keep the icon
   // placeholder and let "Capture Photo" continue the flow without a real photo.
