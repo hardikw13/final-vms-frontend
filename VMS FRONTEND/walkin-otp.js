@@ -139,84 +139,41 @@ function formatTime(totalSeconds) {
   });
 
   verifyBtn.addEventListener("click", async () => {
+    if (verifyBtn.disabled) return;
 
-  if (verifyBtn.disabled) return;
+    const otp = boxes.map((box) => box.value).join("");
+    const visitId = Number(localStorage.getItem("visitId"));
 
-  const otp = boxes.map(box => box.value).join("");
-  console.log("Email:", storedDetails.email);
-console.log("OTP:", otp);
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "Verifying...";
 
-  try {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/visitors/walkin/verify-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ visit_id: visitId, otp })
+        }
+      );
 
-    const response = await fetch(
-      "http://localhost:5000/api/registration/verify-otp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: storedDetails.email,
-          otp: otp
-        })
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Request failed.");
+        return;
       }
-    );
 
-    const result = await response.json();
+      window.location.href = data.nextPage;
 
-    if (!response.ok) {
-      throw new Error(result.message);
+    } catch (err) {
+      alert("Unable to connect to the server. Please check your connection and try again.");
+      console.error(err);
+    } finally {
+      verifyBtn.textContent = data.verifyButtonText;
+      updateVerifyState();
     }
-
-    alert("OTP Verified Successfully!");
-
-// Get visitor details
-const details = JSON.parse(
-  sessionStorage.getItem("eduGateWalkinDetails")
-);
-
-// Get uploaded photo URL
-const photoUrl = sessionStorage.getItem("eduGateWalkinPhotoUrl");
-
-// Call complete registration API
-const registrationResponse = await fetch(
-  "http://localhost:5000/api/registration/complete-registration",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      ...details,
-      photoUrl: photoUrl
-    })
-  }
-);
-
-const registrationResult = await registrationResponse.json();
-
-if (!registrationResponse.ok) {
-  throw new Error(registrationResult.message);
-}
-
-sessionStorage.setItem(
-  "visitorPass",
-  JSON.stringify(registrationResult.data)
-);
-
-window.location.href = data.nextPage;
-
-  } catch (err) {
-
-    alert(err.message);
-
-    boxes.forEach(box => box.value = "");
-
-    boxes[0].focus();
-
-    updateVerifyState();
-
-  }
-
-});
+  });
 })();

@@ -35,7 +35,8 @@
   "visitInfoHeading": "Visit Information",
 
   "labels": {
-    "fullName": "Full Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
     "email": "Email Address",
     "phone": "Phone Number",
     "purpose": "Purpose of Visit",
