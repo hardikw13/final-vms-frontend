@@ -6,16 +6,10 @@ const FALLBACK_DATA = {
     { key: "otp", label: "OTP" }
   ],
   success: {
-    title: "Registration Successful",
-    subtitle: "Your registration is complete. Present the visitor pass at the security desk for entry."
+    title: "Registration Submitted",
+    subtitle: "Your identity has been verified successfully. Your visit request has been submitted for approval. Please wait while the host or department reviews your request."
   },
-  pass: {
-    label: "Visitor Pass",
-    badge: "Walk-in Visitor",
-    qrCaption: "Show this QR at the security gate to check in"
-  },
-  notifiedTextTemplate: "{department} department head has been notified",
-  validityNote: "This pass is valid only for today",
+  notifiedText: "Your host/department has been notified.",
   doneButtonText: "Done · Return to home",
   homeLink: "welcome.html"
 };
@@ -56,18 +50,6 @@ function renderPassItem(label, value) {
   return el;
 }
 
-function formatToday() {
-  const now = new Date();
-  return now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
-    ` (${now.toLocaleDateString("en-US", { weekday: "long" })})`;
-}
-
-function generatePassId() {
-  const year = new Date().getFullYear();
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `VP-${year}-${rand}`;
-}
-
 (async function init() {
   const data = await loadData();
 
@@ -76,10 +58,7 @@ function generatePassId() {
 
   document.getElementById("successTitle").textContent = data.success.title;
   document.getElementById("successSubtitle").textContent = data.success.subtitle;
-  document.getElementById("passLabel").textContent = data.pass.label;
-  document.getElementById("passBadge").textContent = data.pass.badge;
-  document.getElementById("passQrCaption").textContent = data.pass.qrCaption;
-  document.getElementById("validityNote").textContent = data.validityNote;
+  document.getElementById("notifiedText").textContent = data.notifiedText;
   document.getElementById("doneBtn").textContent = data.doneButtonText;
 
   let details = {};
@@ -99,52 +78,20 @@ try {
 
 
 
-  const fullName = visitorPass.visitorName || "Visitor";
+  const fullName = [details.firstName, details.lastName].filter(Boolean).join(" ") || "Visitor";
   document.getElementById("passName").textContent = fullName;
-  document.getElementById("passType").textContent = `${details.visitorType || "Guest"} Visitor`;
-  document.getElementById("passPurpose").textContent =
-    `Purpose: ${visitorPass.purpose || "—"}`;
+  document.getElementById("passPurpose").textContent = `Purpose: ${details.purpose || "—"}`;
 
-  const storedPhoto = sessionStorage.getItem("eduGateWalkinPhotoUrl");
-
-if (storedPhoto) {
-  document.getElementById("passPhotoImg").src = storedPhoto;
-  document.getElementById("passPhotoImg").hidden = false;
-  document.querySelector("#passPhoto svg").hidden = true;
-}
-
-
+  const storedPhoto = localStorage.getItem("eduGateWalkinPhoto");
+  if (storedPhoto) {
+    document.getElementById("passPhotoImg").src = storedPhoto;
+    document.getElementById("passPhotoImg").hidden = false;
+    document.querySelector("#passPhoto svg").hidden = true;
+  }
 
   const grid = document.getElementById("passGrid");
-  grid.appendChild(
-    renderPassItem("Host", visitorPass.hostName || "—")
-);
-
-grid.appendChild(
-    renderPassItem("Date", formatToday())
-);
-
-grid.appendChild(
-    renderPassItem(
-        "Check-in Time",
-        new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        })
-    )
-);
-
-grid.appendChild(
-    renderPassItem("Pass ID", visitorPass.passId || "—")
-);
-
-
-
-
-  document.getElementById("notifiedText").textContent = data.notifiedTextTemplate.replace(
-    "{department}",
-    details.department || "the"
-  );
+  grid.appendChild(renderPassItem("Department", details.department || "—"));
+  grid.appendChild(renderPassItem("Person to Meet", details.personToMeet || "—"));
 
   document.getElementById("backBtn").addEventListener("click", () => {
     window.location.href = "walkin-otp.html";
