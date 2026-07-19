@@ -136,9 +136,42 @@ function formatTime(totalSeconds) {
     updateVerifyState();
   });
 
-  verifyBtn.addEventListener("click", () => {
+  verifyBtn.addEventListener("click", async () => {
     if (verifyBtn.disabled) return;
-    // OTP verified — visitor can walk in directly, no security approval queue needed
-    window.location.href = data.nextPage;
+
+    const otp = boxes.map((box) => box.value).join("");
+    const visitId = Number(localStorage.getItem("visitId"));
+
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "Verifying...";
+
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/visitors/walkin/verify-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ visit_id: visitId, otp })
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Request failed.");
+        return;
+      }
+
+      window.location.href = data.nextPage;
+
+    } catch (err) {
+      alert("Unable to connect to the server. Please check your connection and try again.");
+      console.error(err);
+    } finally {
+      verifyBtn.textContent = data.verifyButtonText;
+      updateVerifyState();
+    }
   });
 })();
