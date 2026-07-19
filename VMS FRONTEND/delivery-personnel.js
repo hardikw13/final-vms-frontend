@@ -45,19 +45,52 @@ async function loadData() {
   });
 
   const form = document.getElementById("deliveryForm");
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const submission = {
-      companyName: document.getElementById("companyName").value || "—",
-      contactNumber: document.getElementById("contactNumber").value || "—",
-      orderId: document.getElementById("orderId").value || "—",
-      recipient: document.getElementById("recipient").value || "—",
-      deliveryBoy: document.getElementById("deliveryBoy").value || "—",
-      submittedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const payload = {
+        companyName: document.getElementById("companyName").value.trim(),
+        contactNumber: document.getElementById("contactNumber").value.trim(),
+        orderId: document.getElementById("orderId").value.trim(),
+        recipientName: document.getElementById("recipient").value.trim(),
+        deliveryPersonName: document.getElementById("deliveryBoy").value.trim()
     };
-    localStorage.setItem("eduGateDeliverySubmission", JSON.stringify(submission));
 
-    window.location.href = data.nextPage;
-  });
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/registration/delivery-registration",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.message || "Delivery registration failed.");
+            return;
+        }
+
+        // Save backend response for success page
+        localStorage.setItem(
+            "eduGateDeliverySubmission",
+            JSON.stringify(result.data)
+        );
+
+        window.location.href = data.nextPage;
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Unable to connect to server.");
+
+    }
+
+});
 })();

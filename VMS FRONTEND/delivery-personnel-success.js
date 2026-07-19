@@ -61,6 +61,7 @@ function renderPassItem(label, value) {
   grid.appendChild(renderPassItem("Contact", submission.contactNumber));
   grid.appendChild(renderPassItem("Recipient", submission.recipient));
   grid.appendChild(renderPassItem("Delivery By", submission.deliveryBoy));
+  grid.appendChild(renderPassItem("Pass ID", submission.passId));
 
   const doneBtn = document.getElementById("doneBtn");
   doneBtn.textContent = data.doneButtonText;
