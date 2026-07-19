@@ -81,7 +81,9 @@ function formatTime(totalSeconds) {
   // Pull the email entered on the Details page for the "sent to ***" line
   let storedDetails = {};
   try {
-    storedDetails = JSON.parse(localStorage.getItem("eduGateWalkinDetails") || "{}");
+    storedDetails = JSON.parse(
+  sessionStorage.getItem("eduGateWalkinDetails") || "{}"
+);
   } catch (e) { /* ignore */ }
   document.getElementById("maskedEmail").textContent = maskEmail(storedDetails.email);
   document.getElementById("otpSubtitle").childNodes[0].textContent = `${data.subtitlePrefix} `;

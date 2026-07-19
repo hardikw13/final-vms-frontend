@@ -10,6 +10,8 @@ const NOTIF_ICONS = {
 };
 
 const AVATAR_COLORS = ["#3346e8", "#e0433d", "#1c8a4c", "#b9790f", "#7c4fd6", "#0891b2"];
+let dashboardData = null;
+let selectedVisitId = null;
 
 const FALLBACK_DATA = {
   brand: { title: "Host Dashboard", rolePill: "Host" },
@@ -23,31 +25,62 @@ const FALLBACK_DATA = {
     notifications: "Notifications"
   },
   todaysVisitors: [
-    { name: "Priya Sharma", category: "Parent Meeting — 09:14 AM", status: "inside" },
-    { name: "Rajan Patel", category: "Job Interview — 09:47 AM", status: "inside" },
-    { name: "Kavita Nair", category: "Guest Lecture — 10:02 AM", status: "checked-out" },
-    { name: "Amit Singh", category: "Delivery — Amazon — 10:30 AM", status: "inside" }
+    { name: "Priya Sharma", category: "Parent Meeting", status: "inside" },
+    { name: "Rajan Patel", category: "Job Interview", status: "inside" },
+    { name: "Kavita Nair", category: "Guest Lecture", status: "checked-out" },
+    { name: "Amit Singh", category: "Delivery — Amazon", status: "inside" }
   ],
   notifications: [
-    { type: "success", text: "Rajan Patel has checked in for your Job Interview appointment", time: "09:47 AM" },
-    { type: "success", text: "Amit Singh has checked in for Delivery — Amazon", time: "10:30 AM" },
-    { type: "info", text: "Kavita Nair checked out after Guest Lecture", time: "10:48 AM" }
+    { notificationId: 1, visitId: 1, type: "success", text: "You created a visit for Rajan Patel", time: "09:47 AM" },
+    { notificationId: 2, visitId: 2, type: "success", text: "You created a visit for Amit Singh", time: "10:30 AM" }
   ],
   signOutText: "Sign Out",
   signOutLink: "member-login.html"
 };
 
 async function loadData() {
-  try {
-    const res = await fetch("host-dashboard-data.json");
-    if (!res.ok) throw new Error("bad response");
-    return await res.json();
-  } catch (err) {
-    console.warn("Falling back to inline data:", err.message);
-    return FALLBACK_DATA;
-  }
-}
 
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/hosts/dashboard", {
+
+      method: "GET",
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+        "Authorization": `Bearer ${token}`
+
+      }
+
+    });
+
+    if (!res.ok) {
+
+      throw new Error("Failed to fetch dashboard");
+
+    }
+
+    const result = await res.json();
+    console.log("Dashboard API Status:", res.status);
+console.log("Dashboard API Response:", result);
+
+    return result.data;
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    return FALLBACK_DATA;
+
+  }
+
+}
 function initials(name) {
   return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 }
@@ -72,31 +105,60 @@ function renderStatCard(stat) {
 function renderTodayCard(item, index) {
   const el = document.createElement("div");
   el.className = "visitor-card";
+  el.dataset.visit = item.visitId;
+  el.style.cursor = "pointer";
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const statusLabel = item.status === "inside" ? "Inside" : "Checked Out";
   el.innerHTML = `
-    <div class="visitor-top">
-      <div class="avatar" style="background:${color}">${initials(item.name)}</div>
-      <div class="visitor-info">
-        <div class="visitor-name-row">
-          <span class="visitor-name">${item.name}</span>
-          <span class="status-badge ${item.status}">${statusLabel}</span>
-        </div>
-        <p class="visitor-meta">${item.category}</p>
-      </div>
+  <div class="visitor-top">
+
+    <div class="avatar" style="background:${color}">
+      ${initials(item.name)}
     </div>
-  `;
+
+    <div class="visitor-info">
+
+      <div class="visitor-name-row">
+
+        <span class="visitor-name">${item.name}</span>
+
+        <span class="status-badge ${item.status}">
+          ${statusLabel}
+        </span>
+
+      </div>
+
+      <p class="visitor-meta">${item.category}</p>
+
+      ${
+        dashboardData?.permissions?.canReassign
+          ? `<button class="reassign-btn" data-visit="${item.visitId}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                Reassign
+             </button>`
+          : ""
+      }
+
+    </div>
+
+  </div>
+`;
   return el;
 }
 
 function renderNotification(item) {
   const el = document.createElement("div");
   el.className = "notification-item";
+  el.dataset.notification = item.notificationId;
   el.innerHTML = `
     <div class="notif-icon ${item.type}">${NOTIF_ICONS[item.type] || NOTIF_ICONS.info}</div>
     <div class="notif-text">
       <p>${item.text}</p>
       <span class="notif-time">${item.time}</span>
+      <div class="notif-actions">
+        <button class="notif-see-details" data-visit="${item.visitId}">See Details</button>
+        <button class="notif-mark-read" data-notification="${item.notificationId}">Mark as Read</button>
+      </div>
     </div>
   `;
   return el;
@@ -104,6 +166,7 @@ function renderNotification(item) {
 
 (async function init() {
   const data = await loadData();
+  dashboardData = data;
 
   document.getElementById("brandTitle").textContent = data.brand.title;
   document.getElementById("rolePill").textContent = data.brand.rolePill;
@@ -131,6 +194,178 @@ function renderNotification(item) {
     document.getElementById(
       btn.dataset.tab === "today" ? "panelToday" : "panelNotifications"
     ).classList.add("active");
+  });
+
+  // ---- Card click → open visit details (but not when clicking Reassign) ----
+  document.getElementById("todayList").addEventListener("click", (e) => {
+
+    if (e.target.closest(".reassign-btn")) return;
+
+    const card = e.target.closest(".visitor-card");
+    if (!card) return;
+
+    window.location.href = `visit-details.html?visit_id=${card.dataset.visit}`;
+
+  });
+
+  // ---- Notification actions: See Details / Mark as Read (permanent delete) ----
+  document.getElementById("notificationsList").addEventListener("click", async (e) => {
+
+    const seeBtn = e.target.closest(".notif-see-details");
+    if (seeBtn) {
+        window.location.href = `visit-details.html?visit_id=${seeBtn.dataset.visit}`;
+        return;
+    }
+
+    const readBtn = e.target.closest(".notif-mark-read");
+    if (readBtn) {
+
+        const notificationId = readBtn.dataset.notification;
+
+        try {
+
+            const res = await fetch(`http://localhost:5000/api/notifications/${notificationId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!res.ok) {
+                const result = await res.json();
+                console.error("Failed to delete notification:", result.message);
+                alert(result.message || "Could not remove notification.");
+                return;
+            }
+
+        } catch (err) {
+            console.error("Error deleting notification:", err);
+            return;
+        }
+
+        const item = readBtn.closest(".notification-item");
+        item.remove();
+
+    }
+
+  });
+
+  // ================================
+  // Reassign Modal
+  // ================================
+
+  const modal = document.getElementById("reassignModal");
+
+  const cancelBtn = document.getElementById("cancelReassign");
+  const confirmBtn = document.getElementById("confirmReassign");
+  const hostSelect = document.getElementById("hostSelect");
+
+  confirmBtn.addEventListener("click", async () => {
+
+    if (!hostSelect.value) {
+
+        alert("Please select a host.");
+
+        return;
+
+    }
+
+    const response = await fetch(
+
+        `http://localhost:5000/api/hosts/visits/${selectedVisitId}/reassign`,
+
+        {
+
+            method: "PATCH",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+
+            },
+
+            body: JSON.stringify({
+
+                newHostId: hostSelect.value
+
+            })
+
+        }
+
+    );
+
+    const result = await response.json();
+
+    if(result.success){
+
+        alert("Visit reassigned successfully.");
+
+        modal.classList.add("hidden");
+
+        location.reload();
+
+    }
+
+    else{
+
+        alert(result.message);
+
+    }
+
+  });
+
+  document.addEventListener("click", async (e) => {
+
+    const btn = e.target.closest(".reassign-btn");
+
+    if (!btn) return;
+
+    selectedVisitId = btn.dataset.visit;
+
+    hostSelect.innerHTML = `<option value="">Loading...</option>`;
+
+    const res = await fetch(
+        "http://localhost:5000/api/hosts/department-hosts",
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+        alert(result.message || "Failed to load hosts.");
+        return;
+    }
+
+    hostSelect.innerHTML = "";
+
+    result.data.forEach((host) => {
+        const option = document.createElement("option");
+        option.value = host.host_id;
+        option.textContent = host.user.name;
+        hostSelect.appendChild(option);
+    });
+
+    modal.classList.remove("hidden");
+
+  });
+
+  // Close modal
+  cancelBtn.addEventListener("click", () => {
+
+    modal.classList.add("hidden");
+
+  });
+
+  document.getElementById("inviteVisitorBtn").addEventListener("click", () => {
+
+    window.location.href = "create-visit.html";
+
   });
 
   document.getElementById("signOutBtn").addEventListener("click", () => {

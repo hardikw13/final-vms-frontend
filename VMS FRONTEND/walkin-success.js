@@ -66,6 +66,18 @@ function renderPassItem(label, value) {
     details = JSON.parse(localStorage.getItem("eduGateWalkinDetails") || "{}");
   } catch (e) { /* ignore */ }
 
+
+
+  let visitorPass = {};
+
+try {
+    visitorPass = JSON.parse(
+        sessionStorage.getItem("visitorPass") || "{}"
+    );
+} catch (e) {}
+
+
+
   const fullName = [details.firstName, details.lastName].filter(Boolean).join(" ") || "Visitor";
   document.getElementById("passName").textContent = fullName;
   document.getElementById("passPurpose").textContent = `Purpose: ${details.purpose || "—"}`;

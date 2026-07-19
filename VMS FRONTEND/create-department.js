@@ -123,7 +123,7 @@ form.addEventListener("submit", async (e) => {
 
         alert("Department created successfully!");
 
-        window.location.href = "department.html";
+        window.location.href = "departments.html";
 
     }
 
