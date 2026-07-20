@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>EduGate VMS | Registration Submitted</title>
+<title>EduGate VMS | Registration Successful</title>
 <link rel="stylesheet" href="walkin-success.css">
 </head>
 <body>
@@ -35,11 +35,16 @@
         <div class="success-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h2 id="successTitle">Registration Submitted</h2>
-        <p id="successSubtitle">Your identity has been verified successfully. Your visit request has been submitted for approval. Please wait while the host or department reviews your request.</p>
+        <h2 id="successTitle">Registration Successful</h2>
+        <p id="successSubtitle">Your registration is complete. Present the visitor pass at the security desk for entry.</p>
       </section>
 
       <section class="pass-card">
+        <div class="pass-top">
+          <span class="pass-label" id="passLabel">Visitor Pass</span>
+          <span class="pass-badge" id="passBadge">Walk-in Visitor</span>
+        </div>
+
         <div class="pass-profile">
           <div class="pass-photo" id="passPhoto">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/></svg>
@@ -47,17 +52,25 @@
           </div>
           <div class="pass-profile-text">
             <span class="pass-name" id="passName">Visitor</span>
+            <span class="pass-type" id="passType">Guest Visitor</span>
             <span class="pass-purpose" id="passPurpose">Purpose: —</span>
           </div>
         </div>
 
         <div class="pass-grid" id="passGrid"><!-- rows injected by walkin-success.js --></div>
+
+        <div class="pass-qr" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="14" y1="17.5" x2="21" y2="17.5"/></svg>
+        </div>
+        <p class="pass-qr-caption" id="passQrCaption">Show this QR at the security gate to check in</p>
       </section>
 
       <p class="notified-note" id="notifiedNote">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span id="notifiedText">Your host/department has been notified.</span>
+        <span id="notifiedText">Department head has been notified</span>
       </p>
+
+      <p class="validity-note" id="validityNote">This pass is valid only for today</p>
 
       <button class="btn-secondary" id="doneBtn" type="button">Done · Return to home</button>
 

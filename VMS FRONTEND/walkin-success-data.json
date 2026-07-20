@@ -6,10 +6,16 @@
     { "key": "otp", "label": "OTP" }
   ],
   "success": {
-    "title": "Registration Submitted",
-    "subtitle": "Your identity has been verified successfully. Your visit request has been submitted for approval. Please wait while the host or department reviews your request."
+    "title": "Registration Successful",
+    "subtitle": "Your registration is complete. Present the visitor pass at the security desk for entry."
   },
-  "notifiedText": "Your host/department has been notified.",
+  "pass": {
+    "label": "Visitor Pass",
+    "badge": "Walk-in Visitor",
+    "qrCaption": "Show this QR at the security gate to check in"
+  },
+  "notifiedTextTemplate": "{department} department head has been notified",
+  "validityNote": "This pass is valid only for today",
   "doneButtonText": "Done · Return to home",
   "homeLink": "welcome.html"
 }
