@@ -21,8 +21,7 @@ const FALLBACK_DATA = {
   visitInfoHeading: "Visit Information",
 
   labels: {
-    firstName: "First Name",
-    lastName: "Last Name",
+    fullName: "Full Name",
     email: "Email Address",
     phone: "Phone Number",
     purpose: "Purpose of Visit",
@@ -137,11 +136,8 @@ function renderStepIndicator(container, steps, currentKey) {
     data.visitInfoHeading;
 
 
-  document.getElementById("firstNameLabel").innerHTML =
-    `${data.labels.firstName} <span class="required">*</span>`;
-
-  document.getElementById("lastNameLabel").innerHTML =
-    `${data.labels.lastName} <span class="required">*</span>`;
+  document.getElementById("fullNameLabel").innerHTML =
+    `${data.labels.fullName} <span class="required">*</span>`;
 
   document.getElementById("emailLabel").innerHTML =
     `${data.labels.email} <span class="required">*</span>`;
@@ -160,6 +156,14 @@ function renderStepIndicator(container, steps, currentKey) {
 
   document.getElementById("submitBtn").textContent =
     data.submitButtonText;
+
+
+  const mode = new URLSearchParams(window.location.search).get("mode");
+
+if (mode === "register") {
+    document.getElementById("submitBtn").textContent =
+        "Register Visitor";
+}
 
 
   // Show photo captured on the previous screen
@@ -298,90 +302,118 @@ departmentSelect.addEventListener(
 
 
   document.getElementById("detailsForm")
-    .addEventListener("submit", async (e) => {
+  .addEventListener("submit", async (e) => {
 
       e.preventDefault();
 
-      const submitBtn = document.getElementById("submitBtn");
-      const originalText = submitBtn.textContent;
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Sending OTP...";
+      const formData = {
 
-      const firstName =
-        document.getElementById("firstName").value;
+        fullName:
+          document.getElementById("fullName").value,
 
-      const lastName =
-        document.getElementById("lastName").value;
+        email:
+          document.getElementById("email").value,
 
-      const email =
-        document.getElementById("email").value;
+        phone:
+          document.getElementById("phone").value,
 
-      const phone =
-        document.getElementById("phone").value;
+        purpose:
+          document.getElementById("purpose").value,
 
-      const purpose =
-        document.getElementById("purpose").value;
+        departmentId:
+          document.getElementById("department").value,
 
-      const department =
-        document.getElementById("department").value;
+        personToMeet:
+          document.getElementById("personToMeet").value,
 
-      const personToMeet =
-        document.getElementById("personToMeet").value;
+        hostId:
+          document
+            .getElementById("personToMeet")
+            .dataset.hostId,
 
-      const hostId =
-        document.getElementById("personToMeet").dataset.hostId;
-
-      const payload = {
-        organization_id: 1,
-        firstName,
-        lastName,
-        email,
-        phone,
-        purpose,
-        department,
-        personToMeet,
-        hostId,
         visitType: "walk_in"
+
       };
+
+      const mode = new URLSearchParams(window.location.search).get("mode");
+
+if (mode === "register") {
+  const photoUrl = sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+// We will verify this key in a minute
+const token = localStorage.getItem("token");
+
+const response = await fetch(
+    "http://localhost:5000/api/visitors/walkin",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            ...formData,
+            photoUrl
+        })
+    }
+);
+
+const result = await response.json();
+
+if (!response.ok) {
+    throw new Error(result.message);
+}
+
+sessionStorage.setItem(
+    "visitorPass",
+    JSON.stringify(result.data)
+);
+
+window.location.href = "walkin-success.html";
+
+return;
+
+}
 
       try {
 
-        const res = await fetch(
-          "http://localhost:5000/api/visitors/walkin/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-          }
-        );
+  const response = await fetch(
+    "http://localhost:5000/api/registration/send-otp",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        fullName: formData.fullName
+      })
+    }
+  );
 
-        const result = await res.json();
+  const result = await response.json();
 
-        if (!res.ok) {
-          alert(result.message || "Request failed.");
-          return;
-        }
+  if (!response.ok) {
+    throw new Error(result.message);
+  }
 
-        localStorage.setItem(
-          "eduGateWalkinDetails",
-          JSON.stringify(payload)
-        );
+} catch (err) {
 
-        localStorage.setItem("visitId", result.data.visitId);
-        localStorage.setItem("visitorId", result.data.visitorId);
+  alert(err.message);
+  return;
 
-        window.location.href = data.nextPage;
+}
 
-      } catch (err) {
-        alert("Unable to connect to the server. Please check your connection and try again.");
-        console.error(err);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
+
+      sessionStorage.setItem(
+  "eduGateWalkinDetails",
+  JSON.stringify(formData)
+);
+
+
+      window.location.href =
+        data.nextPage;
 
     });
 
