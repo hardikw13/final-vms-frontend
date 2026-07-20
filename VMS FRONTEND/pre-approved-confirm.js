@@ -88,9 +88,86 @@ function renderDetailRow(item) {
 }
 
 
+// ---------- NEW: fetch real visit data using the QR token ----------
+
+async function fetchVisitFromToken(token) {
+
+  const res = await fetch(`http://localhost:5000/api/visits/scan-info/${token}`);
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.message || "Invalid or expired QR code.");
+  }
+
+  return result.data.visit;
+
+}
+
+function buildDetailsFromVisit(visit) {
+
+  const host = visit.assigned_host || visit.requested_host;
+
+  return [
+    { label: "Name", value: visit.visitor.full_name },
+    {
+      label: "Host",
+      value: host
+        ? `${host.user.name}${host.department ? " — Dept. of " + host.department.department_name : ""}`
+        : "—"
+    },
+    { label: "Purpose", value: visit.purpose || "—" },
+    {
+      label: "Date",
+      value: new Date(visit.visit_date).toLocaleDateString("en-GB", {
+        day: "2-digit", month: "short", year: "numeric"
+      })
+    },
+    { label: "Department", value: visit.department?.department_name || "—" }
+  ];
+
+}
+
+
 (async function init() {
 
   const data = await loadData();
+
+  // ---------- NEW: overlay real backend data if a QR token exists ----------
+
+  const qrToken = sessionStorage.getItem("qrToken");
+
+  let liveVisit = null;
+
+  if (qrToken) {
+
+    try {
+
+      liveVisit = await fetchVisitFromToken(qrToken);
+
+      data.verified.invitationId = `Invitation ID: VIS-${liveVisit.visit_id}`;
+
+      data.details = buildDetailsFromVisit(liveVisit);
+
+      data.nextPage = "pre-approved-success.html";
+
+    } catch (err) {
+
+      // ---------- CHANGED: a real token means this is a real scan —
+      // never mask a real error (e.g. "already checked in",
+      // "not valid for today") behind fake fallback data.
+      console.error("Live visit fetch failed:", err.message);
+
+      sessionStorage.removeItem("qrToken");
+
+      alert(err.message);
+
+      window.location.href = "pre-approved-scan.html";
+
+      return;
+
+    }
+
+  }
 
 
   document.getElementById("brandTitle").textContent =
@@ -127,10 +204,47 @@ function renderDetailRow(item) {
     data.confirmButtonText;
 
 
-  confirmBtn.addEventListener("click", () => {
+  confirmBtn.addEventListener("click", async () => {
 
-    window.location.href =
-      data.nextPage;
+    // ---------- NEW: real check-in call when we have a live visit ----------
+
+    if (!qrToken || !liveVisit) {
+      // no real token — fall back to old static navigation
+      window.location.href = data.nextPage;
+      return;
+    }
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Checking in...";
+
+    try {
+
+      const res = await fetch(`http://localhost:5000/api/visits/self-checkin/${qrToken}`, {
+        method: "PATCH"
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Check-in failed. Please try again.");
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = data.confirmButtonText;
+        return;
+      }
+
+      sessionStorage.setItem("checkedInVisit", JSON.stringify(result.data.visit));
+      sessionStorage.removeItem("qrToken");
+
+      window.location.href = data.nextPage;
+
+    } catch (err) {
+
+      console.error("Error checking in:", err);
+      alert("Something went wrong. Please try again.");
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = data.confirmButtonText;
+
+    }
 
   });
 
