@@ -634,7 +634,11 @@ function detectFaces() {
       previewModal.hidden = true;
 
       // 7. Continue to visitor details
-      window.location.href = data.nextPage;
+      const mode = new URLSearchParams(window.location.search).get("mode");
+
+window.location.href = mode
+    ? `${data.nextPage}?mode=${mode}`
+    : data.nextPage;
 
     } catch (error) {
       // console.error(

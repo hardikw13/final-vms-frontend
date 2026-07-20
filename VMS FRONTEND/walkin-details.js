@@ -158,6 +158,14 @@ function renderStepIndicator(container, steps, currentKey) {
     data.submitButtonText;
 
 
+  const mode = new URLSearchParams(window.location.search).get("mode");
+
+if (mode === "register") {
+    document.getElementById("submitBtn").textContent =
+        "Register Visitor";
+}
+
+
   // Show photo captured on the previous screen
   const storedPhoto =
   sessionStorage.getItem("eduGateWalkinPhotoUrl");
@@ -327,6 +335,46 @@ departmentSelect.addEventListener(
         visitType: "walk_in"
 
       };
+
+      const mode = new URLSearchParams(window.location.search).get("mode");
+
+if (mode === "register") {
+  const photoUrl = sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+// We will verify this key in a minute
+const token = localStorage.getItem("token");
+
+const response = await fetch(
+    "http://localhost:5000/api/visitors/walkin",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            ...formData,
+            photoUrl
+        })
+    }
+);
+
+const result = await response.json();
+
+if (!response.ok) {
+    throw new Error(result.message);
+}
+
+sessionStorage.setItem(
+    "visitorPass",
+    JSON.stringify(result.data)
+);
+
+window.location.href = "walkin-success.html";
+
+return;
+
+}
 
       try {
 
