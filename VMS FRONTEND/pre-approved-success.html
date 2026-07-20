@@ -5,6 +5,164 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EduGate VMS | Registered</title>
 <link rel="stylesheet" href="pre-approved-success.css">
+
+<style>
+  /* NEW: force the page/frame background to white — only the pass card
+     itself should be blue. Overrides whatever blue background pre-approved-success.css
+     sets on body/app-frame/content. */
+  html, body, .app-frame, .content {
+    background: #ffffff !important;
+  }
+
+  .pass-card-v2 {
+    background: linear-gradient(160deg, #3346e8, #2433b8);
+    border-radius: 20px;
+    padding: 24px;
+    color: #ffffff;
+    position: relative;
+  }
+
+  .pass-card-v2-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .pass-card-v2-top h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .pass-type-badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pass-type-badge .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7CFFB2;
+    flex-shrink: 0;
+  }
+
+  /* CHANGED: title/subtitle were styled white-on-blue originally — now that
+     the page background is white, give them a visible dark color */
+  .success-header h2,
+  .success-header p {
+    color: #13254B;
+  }
+
+  .success-header {
+    margin-bottom: 8px;
+  }
+
+  .pass-visitor-block {
+    margin-bottom: 16px;
+  }
+
+  .pass-visitor-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+  }
+
+  .pass-visitor-sub {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin: 0 0 10px 0;
+  }
+
+  .pass-purpose-line {
+    border-top: 1px solid rgba(255,255,255,0.25);
+    padding-top: 10px;
+    font-size: 0.9rem;
+  }
+
+  .pass-purpose-line strong {
+    font-weight: 700;
+  }
+
+  .pass-info-grid-v2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    border-top: 1px solid rgba(255,255,255,0.25);
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+
+  .pass-info-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 0.85rem;
+  }
+
+  .pass-info-item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.85;
+  }
+
+  .pass-info-item .pass-info-label {
+    display: block;
+    opacity: 0.75;
+    font-size: 0.78rem;
+  }
+
+  .pass-info-item .pass-info-value {
+    display: block;
+    font-weight: 700;
+  }
+
+  /* CHANGED: ribbon now sits directly under the card with less gap,
+     and buttons follow immediately after — everything on white. */
+  .pass-validity-ribbon {
+    text-align: center;
+    margin-top: 12px;
+    background: #eef0ff;
+    color: #3346e8;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .btn-gallery {
+    width: 100%;
+    margin-top: 10px;
+    background: #ffffff;
+    border: 1px solid #d7dbf5;
+    color: #3346e8;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+
+  #doneBtn {
+    margin-top: 8px;
+    background: #3346e8;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    width: 100%;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
 
@@ -41,22 +199,67 @@
         <p id="successSubtitle">Your visit has been recorded. Show this pass to the security desk.</p>
       </section>
 
-      <section class="pass-card">
-        <div class="pass-top">
-          <span class="pass-label" id="passLabel">Visitor Pass</span>
-          <div class="pass-badge" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <!-- pass card — captured as an image for "Save to Gallery". QR removed per request. -->
+      <section class="pass-card-v2" id="passCardV2">
+
+        <div class="pass-card-v2-top">
+          <h3>Visitor Pass</h3>
+          <span class="pass-type-badge">
+            <span class="badge-dot"></span>
+            Pre Approved Visitor
+          </span>
+        </div>
+
+        <div class="pass-visitor-block">
+          <p class="pass-visitor-name" id="passVisitorName">—</p>
+          <p class="pass-visitor-sub" id="passVisitorSub">Pre Approved Visitor</p>
+          <p class="pass-purpose-line"><strong>Purpose:</strong> <span id="passPurpose">—</span></p>
+        </div>
+
+        <div class="pass-info-grid-v2">
+
+          <div class="pass-info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>
+              <span class="pass-info-label">Host</span>
+              <span class="pass-info-value" id="passHost">—</span>
+            </span>
           </div>
+
+          <div class="pass-info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>
+              <span class="pass-info-label">Date</span>
+              <span class="pass-info-value" id="passDate">—</span>
+            </span>
+          </div>
+
+          <div class="pass-info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>
+              <span class="pass-info-label">Check-in Time</span>
+              <span class="pass-info-value" id="passCheckin">—</span>
+            </span>
+          </div>
+
+          <div class="pass-info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="15" x2="18" y2="15"/></svg>
+            <span>
+              <span class="pass-info-label">Pass ID</span>
+              <span class="pass-info-value" id="passId">—</span>
+            </span>
+          </div>
+
         </div>
 
-        <div class="pass-grid" id="passGrid">
-          <!-- rows injected by pre-approved-success.js -->
-        </div>
+        <!-- QR block removed per request -->
 
-        <div class="pass-qr" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="14" y1="17.5" x2="21" y2="17.5"/></svg>
-        </div>
       </section>
+
+      <p class="pass-validity-ribbon">🛡️ This pass is valid only for today</p>
+
+      <!-- save the pass card above as a downloadable PNG image -->
+      <button class="btn-gallery" id="saveGalleryBtn" type="button">⬇️ Save to Gallery</button>
 
       <button class="btn-secondary" id="doneBtn" type="button">Done · Return to home</button>
 
@@ -64,6 +267,8 @@
 
   </div>
 
+  <!-- html2canvas — captures the pass card as an image for download -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="pre-approved-success.js"></script>
 </body>
 </html>
