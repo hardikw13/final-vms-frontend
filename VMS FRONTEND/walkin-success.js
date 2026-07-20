@@ -6,10 +6,16 @@ const FALLBACK_DATA = {
     { key: "otp", label: "OTP" }
   ],
   success: {
-    title: "Registration Submitted",
-    subtitle: "Your identity has been verified successfully. Your visit request has been submitted for approval. Please wait while the host or department reviews your request."
+    title: "Registration Successful",
+    subtitle: "Your registration is complete. Present the visitor pass at the security desk for entry."
   },
-  notifiedText: "Your host/department has been notified.",
+  pass: {
+    label: "Visitor Pass",
+    badge: "Walk-in Visitor",
+    qrCaption: "Show this QR at the security gate to check in"
+  },
+  notifiedTextTemplate: "{department} department head has been notified",
+  validityNote: "This pass is valid only for today",
   doneButtonText: "Done · Return to home",
   homeLink: "welcome.html"
 };
@@ -50,6 +56,18 @@ function renderPassItem(label, value) {
   return el;
 }
 
+function formatToday() {
+  const now = new Date();
+  return now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
+    ` (${now.toLocaleDateString("en-US", { weekday: "long" })})`;
+}
+
+function generatePassId() {
+  const year = new Date().getFullYear();
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `VP-${year}-${rand}`;
+}
+
 (async function init() {
   const data = await loadData();
 
@@ -58,7 +76,10 @@ function renderPassItem(label, value) {
 
   document.getElementById("successTitle").textContent = data.success.title;
   document.getElementById("successSubtitle").textContent = data.success.subtitle;
-  document.getElementById("notifiedText").textContent = data.notifiedText;
+  document.getElementById("passLabel").textContent = data.pass.label;
+  document.getElementById("passBadge").textContent = data.pass.badge;
+  document.getElementById("passQrCaption").textContent = data.pass.qrCaption;
+  document.getElementById("validityNote").textContent = data.validityNote;
   document.getElementById("doneBtn").textContent = data.doneButtonText;
 
   let details = {};
@@ -78,20 +99,52 @@ try {
 
 
 
-  const fullName = [details.firstName, details.lastName].filter(Boolean).join(" ") || "Visitor";
+  const fullName = visitorPass.visitorName || "Visitor";
   document.getElementById("passName").textContent = fullName;
-  document.getElementById("passPurpose").textContent = `Purpose: ${details.purpose || "—"}`;
+  document.getElementById("passType").textContent = `${details.visitorType || "Guest"} Visitor`;
+  document.getElementById("passPurpose").textContent =
+    `Purpose: ${visitorPass.purpose || "—"}`;
 
-  const storedPhoto = localStorage.getItem("eduGateWalkinPhoto");
-  if (storedPhoto) {
-    document.getElementById("passPhotoImg").src = storedPhoto;
-    document.getElementById("passPhotoImg").hidden = false;
-    document.querySelector("#passPhoto svg").hidden = true;
-  }
+  const storedPhoto = sessionStorage.getItem("eduGateWalkinPhotoUrl");
+
+if (storedPhoto) {
+  document.getElementById("passPhotoImg").src = storedPhoto;
+  document.getElementById("passPhotoImg").hidden = false;
+  document.querySelector("#passPhoto svg").hidden = true;
+}
+
+
 
   const grid = document.getElementById("passGrid");
-  grid.appendChild(renderPassItem("Department", details.department || "—"));
-  grid.appendChild(renderPassItem("Person to Meet", details.personToMeet || "—"));
+  grid.appendChild(
+    renderPassItem("Host", visitorPass.hostName || "—")
+);
+
+grid.appendChild(
+    renderPassItem("Date", formatToday())
+);
+
+grid.appendChild(
+    renderPassItem(
+        "Check-in Time",
+        new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+    )
+);
+
+grid.appendChild(
+    renderPassItem("Pass ID", visitorPass.passId || "—")
+);
+
+
+
+
+  document.getElementById("notifiedText").textContent = data.notifiedTextTemplate.replace(
+    "{department}",
+    details.department || "the"
+  );
 
   document.getElementById("backBtn").addEventListener("click", () => {
     window.location.href = "walkin-otp.html";
