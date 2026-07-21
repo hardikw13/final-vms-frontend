@@ -219,8 +219,16 @@ function buildDetailsFromVisit(visit) {
 
     try {
 
+      const staffToken = localStorage.getItem("token");
+
+      const headers = {};
+      if (staffToken) {
+        headers["Authorization"] = `Bearer ${staffToken}`;
+      }
+
       const res = await fetch(`http://localhost:5000/api/visits/self-checkin/${qrToken}`, {
-        method: "PATCH"
+        method: "PATCH",
+        headers
       });
 
       const result = await res.json();
