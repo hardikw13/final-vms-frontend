@@ -7,12 +7,12 @@
   ],
   "success": {
     "title": "Registration Successful",
-    "subtitle": "Your registration is complete. Present the visitor pass at the security desk for entry."
+    "subtitle": "Your visitor pass has been generated successfully."
   },
   "pass": {
     "label": "Visitor Pass",
     "badge": "Walk-in Visitor",
-    "qrCaption": "Show this QR at the security gate to check in"
+    "qrCaption": "Keep this pass available during your visit."
   },
   "notifiedTextTemplate": "{department} department head has been notified",
   "validityNote": "This pass is valid only for today",

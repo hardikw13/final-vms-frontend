@@ -2,11 +2,11 @@ const FALLBACK_DATA = {
   brand: { title: "Delivery Personnel" },
   backLink: "delivery-personnel.html",
   success: {
-    title: "Submitted!",
-    subtitle: "Your delivery details have been sent to the security desk for verification."
-  },
+    title: "Registration Successful!",
+    subtitle: "Your delivery pass has been generated successfully."
+},
   pass: { label: "Delivery Pass" },
-  statusText: "Awaiting security confirmation",
+  statusText: "Pass Generated",
   doneButtonText: "Done · Return to home",
   homeLink: "welcome.html",
   // Used only if no real submission is found in localStorage (e.g. page opened directly)
