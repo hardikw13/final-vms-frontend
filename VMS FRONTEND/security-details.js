@@ -2,6 +2,18 @@
 (async function () {
   const state = await VMS_SECURITY.load();
 
+  const token = localStorage.getItem("token");
+
+const response = await fetch("http://localhost:5000/api/auth/me", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+
+const result = await response.json();
+
+const currentUser = result.data;
+
   const id = VMS_SECURITY.qs("id");
   const mode = VMS_SECURITY.qs("mode");
 
@@ -58,17 +70,26 @@
   }
 
   // ---- Guard profile view (default) ----
-  const guard = state.guard || { name: "Security Guard", phone: "—" };
-  const color = VMS_SECURITY.colorFor(guard.name);
-  avatarHero.style.background = color;
-  avatarHero.textContent = VMS_SECURITY.initials(guard.name);
-  detName.textContent = guard.name;
-  detPhone.textContent = guard.phone || "—";
-  renderExtra([["Role", guard.role || "Security Guard"]]);
+  const color = VMS_SECURITY.colorFor(currentUser.name);
+
+avatarHero.style.background = color;
+
+avatarHero.textContent = VMS_SECURITY.initials(currentUser.name);
+
+detName.textContent = currentUser.name;
+
+detPhone.textContent = currentUser.phone ?? "—";
+
+renderExtra([
+    ["Email", currentUser.email],
+    ["Role", currentUser.role.role_name]
+]);
 
   actionBtn.textContent = "Sign Out";
   actionBtn.addEventListener("click", () => {
     VMS_SECURITY.toast("Signed out successfully", "success");
+    localStorage.removeItem("token");
+localStorage.removeItem("user");
     setTimeout(() => VMS_SECURITY.goTo("member-login.html"), 700);
   });
 })();
