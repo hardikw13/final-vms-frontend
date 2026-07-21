@@ -1,9 +1,9 @@
 /* security-dashboard.css — page-specific rules (imports security-common.css first) */
 
 .action-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
 }
 
 #pendingBtn{ position: relative; }

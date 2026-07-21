@@ -29,10 +29,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg>
         Scan Visitor QR
       </button>
-      <button class="btn btn-outline" id="checkInBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
-        Check In
-      </button>
+      
     </div>
 
     <div class="action-grid" style="margin-top:10px;">
@@ -40,16 +37,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
         Register
       </button>
-      <button class="btn btn-orange" id="pendingBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        <span id="pendingLabel">Pending approval</span>
-      </button>
+      
     </div>
 
     <div class="stat-row">
-      <button class="stat-pill stat-pending" data-goto="pending">
+      <button class="stat-pill stat-total"
+data-goto="total">
         <span class="num" id="statPending">0</span>
-        <span class="label">Pending</span>
+        <span class="label">Total Visitors</span>
       </button>
       <button class="stat-pill stat-inside" data-goto="inside">
         <span class="num" id="statInside">0</span>

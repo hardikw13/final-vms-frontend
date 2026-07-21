@@ -2,10 +2,23 @@
 (async function () {
   const state0 = await VMS_SECURITY.load();
 
+  const token = localStorage.getItem("token");
+
+const response = await fetch("http://localhost:5000/api/auth/me", {
+    headers: {
+        Authorization: `Bearer ${token}`
+    }
+});
+
+const result = await response.json();
+const currentUser = result.data;
+console.log("CURRENT USER:", result);
+
   let activeTab = "inside";
   let searchTerm = "";
 
   const els = {
+    profileBtn: document.getElementById("profileBtn"),
     statPending: document.getElementById("statPending"),
     statInside: document.getElementById("statInside"),
     statExpected: document.getElementById("statExpected"),
@@ -20,6 +33,22 @@
     const color = VMS_SECURITY.colorFor(id || name);
     return `<div class="avatar" style="background:${color}">${VMS_SECURITY.initials(name)}</div>`;
   }
+
+  function updateProfile() {
+    if (!currentUser) return;
+
+    const initials = currentUser.name
+        .split(" ")
+        .map(word => word[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+
+    els.profileBtn.textContent = initials;
+    els.profileBtn.title = currentUser.name;
+}
+
+
 
   function emptyState(label) {
     return `<div class="empty-state">
@@ -72,7 +101,7 @@
         actions = `<button class="btn btn-sm btn-outline" data-action="checkout" data-id="${item.id}">Check Out</button>`;
       } else if (activeTab === "expected") {
         sub = `Host: <b>${item.hostName || "—"}</b> · Expected ${item.expectedTime}`;
-        actions = `<button class="btn btn-sm btn-primary" data-action="checkin-expected" data-id="${item.id}">Check In</button>`;
+        actions = "";
       } else {
         sub = `Out at ${item.checkOutTime} · In was ${item.checkInTime || "—"}`;
       }
@@ -90,33 +119,33 @@
 
   function renderStats() {
     const state = VMS_SECURITY.getState();
-    els.statPending.textContent = state.pending.length;
+
+    const totalVisitors =
+        state.inside.length +
+        state.expected.length +
+        state.checkedOut.length;
+
+    els.statPending.textContent = totalVisitors;
     els.statInside.textContent = state.inside.length;
     els.statExpected.textContent = state.expected.length;
-
-    if (state.pending.length > 0) {
-      els.pendingLabel.innerHTML = `Pending approval <span class="pending-badge" style="position:static;border:none;margin-left:4px;">${state.pending.length}</span>`;
-    } else {
-      els.pendingLabel.textContent = "Pending approval";
-    }
-  }
+}
 
   function renderAll() {
-    renderStats();
-    renderList();
+    updateProfile();
+renderStats();
+renderList();
   }
 
   // ---- Wire up static buttons ----
   document.getElementById("scanQrBtn").addEventListener("click", () => VMS_SECURITY.goTo("pre-approved-scan.html"));
-  document.getElementById("checkInBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-checkin.html"));
   document.getElementById("registerBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-register.html"));
-  document.getElementById("pendingBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-pending-approvals.html"));
   document.getElementById("profileBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-details.html"));
 
   document.querySelectorAll(".stat-pill").forEach((pill) => {
     pill.addEventListener("click", () => {
       const target = pill.getAttribute("data-goto");
-      if (target === "pending") return VMS_SECURITY.goTo("security-pending-approvals.html");
+      if (target === "total")
+    return;
       activeTab = target;
       document.querySelectorAll(".tab-btn").forEach((t) => t.classList.toggle("active", t.dataset.tab === target));
       renderList();
