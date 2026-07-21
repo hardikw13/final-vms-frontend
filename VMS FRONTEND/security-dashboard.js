@@ -1,18 +1,14 @@
-// security-dashboard.js
-(async function () {
-  const state0 = await VMS_SECURITY.load();
-
+(function () {
+  const API_BASE = "http://localhost:5000/api";
   const token = localStorage.getItem("token");
 
-const response = await fetch("http://localhost:5000/api/auth/me", {
-    headers: {
-        Authorization: `Bearer ${token}`
-    }
-});
+  const authHeaders = {
+    Authorization: `Bearer ${token}`
+  };
 
-const result = await response.json();
-const currentUser = result.data;
-console.log("CURRENT USER:", result);
+  let currentUser = null;
+  let dashboardState = { inside: [], expected: [], checkedOut: [] };
+  let stats = { totalVisitors: 0, inside: 0, expected: 0 };
 
   let activeTab = "inside";
   let searchTerm = "";
@@ -22,12 +18,38 @@ console.log("CURRENT USER:", result);
     statPending: document.getElementById("statPending"),
     statInside: document.getElementById("statInside"),
     statExpected: document.getElementById("statExpected"),
-    pendingLabel: document.getElementById("pendingLabel"),
     listTitle: document.getElementById("listTitle"),
     listCount: document.getElementById("listCount"),
     listContainer: document.getElementById("listContainer"),
     searchInput: document.getElementById("searchInput"),
   };
+
+  async function fetchJSON(path) {
+    const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || "Request failed");
+    return json.data;
+  }
+
+  async function loadCurrentUser() {
+    currentUser = await fetchJSON("/auth/me");
+  }
+
+  async function loadDashboard() {
+    const [insideData, expectedData, checkedOutData, statsData] = await Promise.all([
+      fetchJSON("/visits/dashboard/inside"),
+      fetchJSON("/visits/dashboard/expected"),
+      fetchJSON("/visits/dashboard/checked-out"),
+      fetchJSON("/visits/dashboard/stats"),
+    ]);
+
+    dashboardState = {
+      inside: insideData,
+      expected: expectedData,
+      checkedOut: checkedOutData
+    };
+    stats = statsData;
+  }
 
   function renderAvatar(name, id) {
     const color = VMS_SECURITY.colorFor(id || name);
@@ -36,19 +58,11 @@ console.log("CURRENT USER:", result);
 
   function updateProfile() {
     if (!currentUser) return;
-
     const initials = currentUser.name
-        .split(" ")
-        .map(word => word[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase();
-
+      .split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
     els.profileBtn.textContent = initials;
     els.profileBtn.title = currentUser.name;
-}
-
-
+  }
 
   function emptyState(label) {
     return `<div class="empty-state">
@@ -64,21 +78,18 @@ console.log("CURRENT USER:", result);
   }
 
   function renderList() {
-    const state = VMS_SECURITY.getState();
-    let items = [];
-    let title = "";
-    let emptyLabel = "";
+    let items = [], title = "", emptyLabel = "";
 
     if (activeTab === "inside") {
-      items = state.inside;
+      items = dashboardState.inside;
       title = "Currently Inside";
       emptyLabel = "No visitors are currently inside.";
     } else if (activeTab === "expected") {
-      items = state.expected;
+      items = dashboardState.expected;
       title = "Expected Today";
       emptyLabel = "No visitors expected today.";
     } else {
-      items = state.checkedOut;
+      items = dashboardState.checkedOut;
       title = "Checked Out";
       emptyLabel = "No one has checked out yet.";
     }
@@ -93,17 +104,15 @@ console.log("CURRENT USER:", result);
     }
 
     els.listContainer.innerHTML = filtered.map((item) => {
-      let sub = "";
-      let actions = "";
+      let sub = "", actions = "";
 
       if (activeTab === "inside") {
-        sub = `Host: <b>${item.hostName || "—"}</b> · In ${item.checkInTime}`;
+        sub = `Host: <b>${item.hostName || "—"}</b> · In ${item.checkInTime || "—"}`;
         actions = `<button class="btn btn-sm btn-outline" data-action="checkout" data-id="${item.id}">Check Out</button>`;
       } else if (activeTab === "expected") {
-        sub = `Host: <b>${item.hostName || "—"}</b> · Expected ${item.expectedTime}`;
-        actions = "";
+        sub = `Host: <b>${item.hostName || "—"}</b> · Expected ${item.expectedTime || "—"}`;
       } else {
-        sub = `Out at ${item.checkOutTime} · In was ${item.checkInTime || "—"}`;
+        sub = `Out at ${item.checkOutTime || "—"} · In was ${item.checkInTime || "—"}`;
       }
 
       return `<div class="list-row" data-row-id="${item.id}">
@@ -118,25 +127,36 @@ console.log("CURRENT USER:", result);
   }
 
   function renderStats() {
-    const state = VMS_SECURITY.getState();
-
-    const totalVisitors =
-        state.inside.length +
-        state.expected.length +
-        state.checkedOut.length;
-
-    els.statPending.textContent = totalVisitors;
-    els.statInside.textContent = state.inside.length;
-    els.statExpected.textContent = state.expected.length;
-}
-
-  function renderAll() {
-    updateProfile();
-renderStats();
-renderList();
+    els.statPending.textContent = stats.totalVisitors;
+    els.statInside.textContent = stats.inside;
+    els.statExpected.textContent = stats.expected;
   }
 
-  // ---- Wire up static buttons ----
+  async function refreshAll() {
+    await loadDashboard();
+    updateProfile();
+    renderStats();
+    renderList();
+  }
+
+  async function handleCheckout(visitId, btn) {
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/visits/${visitId}/checkout`, {
+        method: "PATCH",
+        headers: authHeaders
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Checkout failed");
+
+      VMS_SECURITY.toast("Visitor checked out", "success");
+      await refreshAll();
+    } catch (err) {
+      VMS_SECURITY.toast(err.message, "error");
+      btn.disabled = false;
+    }
+  }
+
   document.getElementById("scanQrBtn").addEventListener("click", () => VMS_SECURITY.goTo("pre-approved-scan.html"));
   document.getElementById("registerBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-register.html"));
   document.getElementById("profileBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-details.html"));
@@ -144,8 +164,7 @@ renderList();
   document.querySelectorAll(".stat-pill").forEach((pill) => {
     pill.addEventListener("click", () => {
       const target = pill.getAttribute("data-goto");
-      if (target === "total")
-    return;
+      if (target === "total") return;
       activeTab = target;
       document.querySelectorAll(".tab-btn").forEach((t) => t.classList.toggle("active", t.dataset.tab === target));
       renderList();
@@ -165,21 +184,13 @@ renderList();
     renderList();
   });
 
-  // ---- Row interactions (event delegation) ----
   els.listContainer.addEventListener("click", (e) => {
     const actionBtn = e.target.closest("[data-action]");
     if (actionBtn) {
       e.stopPropagation();
-      const id = actionBtn.dataset.id;
-      const action = actionBtn.dataset.action;
-      if (action === "checkout") {
-        const v = VMS_SECURITY.checkOut(id);
-        if (v) VMS_SECURITY.toast(`${v.name} checked out`, "success");
-      } else if (action === "checkin-expected") {
-        const v = VMS_SECURITY.checkInFromExpected(id);
-        if (v) VMS_SECURITY.toast(`${v.name} checked in`, "success");
+      if (actionBtn.dataset.action === "checkout") {
+        handleCheckout(actionBtn.dataset.id, actionBtn);
       }
-      renderAll();
       return;
     }
     const row = e.target.closest(".list-row");
@@ -188,5 +199,14 @@ renderList();
     }
   });
 
-  renderAll();
+  (async function init() {
+    try {
+      await loadCurrentUser();
+      await refreshAll();
+    } catch (err) {
+      console.error("Dashboard init failed:", err);
+      VMS_SECURITY.toast("Failed to load dashboard", "error");
+    }
+  })();
+
 })();
