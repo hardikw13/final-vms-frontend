@@ -62,8 +62,10 @@
     detName.textContent = visitorName;
     detPhone.textContent = visitorPhone;
 
-    const currentlyInside = visit.status === "checked_in";
-    const checkedOut = visit.status === "checked_out";
+    const status = (visit.status || "").toLowerCase();
+
+const currentlyInside = status === "checked_in";
+const checkedOut = status === "checked_out";
 
     const checkInTime = visit.entry_log?.check_in_time
       ? new Date(visit.entry_log.check_in_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -76,26 +78,33 @@
       ["Status", currentlyInside ? "Inside" : (checkedOut ? "Checked out" : "Expected")]
     ]);
 
-    if (currentlyInside) {
-      actionBtn.textContent = "Check Out";
-      actionBtn.classList.remove("btn-primary");
-      actionBtn.classList.add("btn-orange");
-      actionBtn.addEventListener("click", async () => {
-        try {
-          const res = await fetch(`${API_BASE}/visits/${visit.visit_id}/checkout`, {
-            method: "PATCH",
-            headers: authHeaders
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Checkout failed");
+    if (
+  visit.status?.toLowerCase() === "expected" ||
+  visit.status?.toLowerCase() === "checked_out"
+) {
+  actionBtn.classList.add("hidden");
+} else if (currentlyInside) {
+  actionBtn.textContent = "Check Out";
+  actionBtn.classList.remove("btn-primary");
+  actionBtn.classList.add("btn-orange");
 
-          VMS_SECURITY.toast(`${visitorName} checked out`, "success");
-          setTimeout(() => VMS_SECURITY.goTo("security-dashboard.html"), 700);
-        } catch (err) {
-          VMS_SECURITY.toast(err.message, "error");
-        }
+  actionBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch(`${API_BASE}/visits/${visit.visit_id}/checkout`, {
+        method: "PATCH",
+        headers: authHeaders
       });
-    } else {
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Checkout failed");
+
+      VMS_SECURITY.toast(`${visitorName} checked out`, "success");
+      setTimeout(() => VMS_SECURITY.goTo("security-dashboard.html"), 700);
+    } catch (err) {
+      VMS_SECURITY.toast(err.message, "error");
+    }
+  });
+} else {
       actionBtn.classList.add("hidden");
     }
 
