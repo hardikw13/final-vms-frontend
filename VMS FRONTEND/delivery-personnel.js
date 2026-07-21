@@ -48,6 +48,8 @@ async function loadData() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const mode = new URLSearchParams(window.location.search).get("mode");
+
     const payload = {
         companyName: document.getElementById("companyName").value.trim(),
         contactNumber: document.getElementById("contactNumber").value.trim(),
@@ -55,8 +57,44 @@ async function loadData() {
         recipientName: document.getElementById("recipient").value.trim(),
         deliveryPersonName: document.getElementById("deliveryBoy").value.trim()
     };
+    
 
     try {
+
+      if (mode === "register") {
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        "http://localhost:5000/api/visitors/delivery",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.message || "Delivery registration failed.");
+        return;
+    }
+
+    localStorage.setItem(
+        "eduGateDeliverySubmission",
+        JSON.stringify(result.data)
+    );
+
+    window.location.href = data.nextPage;
+    return;
+}
+
+
+
 
         const response = await fetch(
             "http://localhost:5000/api/registration/delivery-registration",
