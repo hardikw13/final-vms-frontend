@@ -1,18 +1,18 @@
 // security-details.js
 (async function () {
-  const state = await VMS_SECURITY.load();
-
+  const API_BASE = "http://localhost:5000/api";
   const token = localStorage.getItem("token");
 
-const response = await fetch("http://localhost:5000/api/auth/me", {
-  headers: {
+  const authHeaders = {
     Authorization: `Bearer ${token}`
-  }
-});
+  };
 
-const result = await response.json();
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    headers: authHeaders
+  });
 
-const currentUser = result.data;
+  const result = await response.json();
+  const currentUser = result.data;
 
   const id = VMS_SECURITY.qs("id");
   const mode = VMS_SECURITY.qs("mode");
@@ -30,37 +30,70 @@ const currentUser = result.data;
 
   if (mode === "visitor" && id) {
     // ---- Visitor detail view ----
-    const visitor = VMS_SECURITY.findAnyById(id);
+    let visit;
 
-    if (!visitor) {
+    try {
+      const res = await fetch(`${API_BASE}/visits/${id}`, {
+        headers: authHeaders
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.data) {
+        throw new Error("Not found");
+      }
+
+      visit = json.data;
+    } catch (err) {
       detName.textContent = "Visitor not found";
       actionBtn.classList.add("hidden");
       return;
     }
 
-    const color = VMS_SECURITY.colorFor(visitor.id);
-    avatarHero.style.background = color;
-    avatarHero.textContent = VMS_SECURITY.initials(visitor.name);
-    detName.textContent = visitor.name;
-    detPhone.textContent = visitor.phone || "—";
+    const visitorName = visit.visitor?.full_name || "—";
+    const visitorPhone = visit.visitor?.phone || "—";
+    const hostName =
+      visit.assigned_host?.user?.name ||
+      visit.requested_host?.user?.name ||
+      "—";
 
-    const currentlyInside = state.inside.some((v) => v.id === visitor.id);
+    const color = VMS_SECURITY.colorFor(visit.visit_id);
+    avatarHero.style.background = color;
+    avatarHero.textContent = VMS_SECURITY.initials(visitorName);
+    detName.textContent = visitorName;
+    detPhone.textContent = visitorPhone;
+
+    const currentlyInside = visit.status === "checked_in";
+    const checkedOut = visit.status === "checked_out";
+
+    const checkInTime = visit.entry_log?.check_in_time
+      ? new Date(visit.entry_log.check_in_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "—";
 
     renderExtra([
-      ["Host", visitor.hostName || "—"],
-      ["Purpose", visitor.purpose || "—"],
-      ["Check-in time", visitor.checkInTime || "—"],
-      ["Status", currentlyInside ? "Inside" : (visitor.checkOutTime ? "Checked out" : "Expected")]
+      ["Host", hostName],
+      ["Purpose", visit.purpose || "—"],
+      ["Check-in time", checkInTime],
+      ["Status", currentlyInside ? "Inside" : (checkedOut ? "Checked out" : "Expected")]
     ]);
 
     if (currentlyInside) {
       actionBtn.textContent = "Check Out";
       actionBtn.classList.remove("btn-primary");
       actionBtn.classList.add("btn-orange");
-      actionBtn.addEventListener("click", () => {
-        const v = VMS_SECURITY.checkOut(visitor.id);
-        if (v) VMS_SECURITY.toast(`${v.name} checked out`, "success");
-        setTimeout(() => VMS_SECURITY.goTo("security-dashboard.html"), 700);
+      actionBtn.addEventListener("click", async () => {
+        try {
+          const res = await fetch(`${API_BASE}/visits/${visit.visit_id}/checkout`, {
+            method: "PATCH",
+            headers: authHeaders
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.message || "Checkout failed");
+
+          VMS_SECURITY.toast(`${visitorName} checked out`, "success");
+          setTimeout(() => VMS_SECURITY.goTo("security-dashboard.html"), 700);
+        } catch (err) {
+          VMS_SECURITY.toast(err.message, "error");
+        }
       });
     } else {
       actionBtn.classList.add("hidden");
@@ -72,24 +105,21 @@ const currentUser = result.data;
   // ---- Guard profile view (default) ----
   const color = VMS_SECURITY.colorFor(currentUser.name);
 
-avatarHero.style.background = color;
+  avatarHero.style.background = color;
+  avatarHero.textContent = VMS_SECURITY.initials(currentUser.name);
+  detName.textContent = currentUser.name;
+  detPhone.textContent = currentUser.phone ?? "—";
 
-avatarHero.textContent = VMS_SECURITY.initials(currentUser.name);
-
-detName.textContent = currentUser.name;
-
-detPhone.textContent = currentUser.phone ?? "—";
-
-renderExtra([
+  renderExtra([
     ["Email", currentUser.email],
     ["Role", currentUser.role.role_name]
-]);
+  ]);
 
   actionBtn.textContent = "Sign Out";
   actionBtn.addEventListener("click", () => {
     VMS_SECURITY.toast("Signed out successfully", "success");
     localStorage.removeItem("token");
-localStorage.removeItem("user");
+    localStorage.removeItem("user");
     setTimeout(() => VMS_SECURITY.goTo("member-login.html"), 700);
   });
 })();
