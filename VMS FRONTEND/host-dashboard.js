@@ -145,6 +145,37 @@ function renderTodayCard(item, index) {
 `;
   return el;
 }
+function renderDeliveryCard(item, index) {
+  const el = document.createElement("div");
+  el.className = "visitor-card";
+  el.dataset.visit = item.visitId;
+  const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
+  el.innerHTML = `
+  <div class="visitor-top">
+
+    <div class="avatar" style="background:${color}">
+      ${initials(item.courierName)}
+    </div>
+
+    <div class="visitor-info">
+
+      <div class="visitor-name-row">
+        <span class="visitor-name">${item.courierName}</span>
+      </div>
+
+      <p class="visitor-meta">For: ${item.recipientName} · Tracking: ${item.trackingNumber}</p>
+      <p class="visitor-meta">Arrived ${item.arrivedTime}</p>
+
+      <button class="reassign-btn receive-btn" data-visit="${item.visitId}">
+        Package Received
+      </button>
+
+    </div>
+
+  </div>
+`;
+  return el;
+}
 
 function renderNotification(item) {
   const el = document.createElement("div");
@@ -179,7 +210,12 @@ function renderNotification(item) {
   data.stats.forEach((stat) => statsRow.appendChild(renderStatCard(stat)));
 
   const todayList = document.getElementById("todayList");
-  data.todaysVisitors.forEach((item, i) => todayList.appendChild(renderTodayCard(item, i)));
+
+  if (data.permissions?.isDeliveryHost) {
+    (data.deliveries || []).forEach((item, i) => todayList.appendChild(renderDeliveryCard(item, i)));
+  } else {
+    data.todaysVisitors.forEach((item, i) => todayList.appendChild(renderTodayCard(item, i)));
+  }
 
   const notificationsList = document.getElementById("notificationsList");
   data.notifications.forEach((item) => notificationsList.appendChild(renderNotification(item)));
@@ -317,6 +353,40 @@ function renderNotification(item) {
   });
 
   document.addEventListener("click", async (e) => {
+
+    const receiveBtn = e.target.closest(".receive-btn");
+    if (receiveBtn) {
+
+      receiveBtn.disabled = true;
+
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/hosts/deliveries/${receiveBtn.dataset.visit}/receive`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          }
+        );
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          alert(result.message || "Failed to mark as received.");
+          receiveBtn.disabled = false;
+          return;
+        }
+
+        receiveBtn.closest(".visitor-card").remove();
+
+      } catch (err) {
+        alert("Something went wrong.");
+        receiveBtn.disabled = false;
+      }
+
+      return;
+    }
 
     const btn = e.target.closest(".reassign-btn");
 
