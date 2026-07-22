@@ -37,7 +37,12 @@ function handleScannedToken(token, nextPage) {
 
   sessionStorage.setItem("qrToken", token.trim());
 
-  window.location.href = nextPage;
+  const mode = new URLSearchParams(window.location.search).get("mode");
+
+window.location.href =
+    mode === "register"
+        ? `${nextPage}?mode=register`
+        : nextPage;
 
 }
 
