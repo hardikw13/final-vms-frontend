@@ -1,0 +1,6 @@
+{
+  "outputDirectory": "VMS FRONTEND",
+  "rewrites": [
+    { "source": "/", "destination": "/welcome.html" }
+  ]
+}
