@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/api/visits/${visitId}`, {
+        const response = await fetch(`https://edugate-9yl5.onrender.com/api/visits/${visitId}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }

@@ -92,7 +92,7 @@ function renderDetailRow(item) {
 
 async function fetchVisitFromToken(token) {
 
-  const res = await fetch(`http://localhost:5000/api/visits/scan-info/${token}`);
+  const res = await fetch(`https://edugate-9yl5.onrender.com/api/visits/scan-info/${token}`);
   const result = await res.json();
 
   if (!res.ok) {
@@ -231,7 +231,7 @@ if (mode === "register") {
     }
 }
 
-      const res = await fetch(`http://localhost:5000/api/visits/self-checkin/${qrToken}`, {
+      const res = await fetch(`https://edugate-9yl5.onrender.com/api/visits/self-checkin/${qrToken}`, {
         method: "PATCH",
         headers
       });

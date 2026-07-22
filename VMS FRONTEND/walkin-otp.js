@@ -149,7 +149,7 @@ console.log("OTP:", otp);
   try {
 
     const response = await fetch(
-      "http://localhost:5000/api/registration/verify-otp",
+      "https://edugate-9yl5.onrender.com/api/registration/verify-otp",
       {
         method: "POST",
         headers: {
@@ -180,7 +180,7 @@ const photoUrl = sessionStorage.getItem("eduGateWalkinPhotoUrl");
 
 // Call complete registration API
 const registrationResponse = await fetch(
-  "http://localhost:5000/api/registration/complete-registration",
+  "https://edugate-9yl5.onrender.com/api/registration/complete-registration",
   {
     method: "POST",
     headers: {

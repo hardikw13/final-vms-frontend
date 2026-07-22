@@ -2,7 +2,7 @@
 // Loads visitors from the backend API, renders the visitor list, and wires up search, filter, and export.
 
 // ---- Config ----------------------------------------------------------
-const API_BASE = 'http://localhost:5000/api'; // change to your deployed API origin
+const API_BASE = 'https://edugate-9yl5.onrender.com/api'; // change to your deployed API origin
 const TOKEN_KEY = 'token'; // must match whatever key your login page saves the JWT under
 
 let allVisitors = [];

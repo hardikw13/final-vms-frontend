@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
 
-        const response = await fetch(`http://localhost:5000/api/visits/pass/${visitId}`);
+        const response = await fetch(`https://edugate-9yl5.onrender.com/api/visits/pass/${visitId}`);
         const result = await response.json();
 
         if (!response.ok) {

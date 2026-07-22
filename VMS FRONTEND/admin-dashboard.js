@@ -2,7 +2,7 @@
 // Connected with backend API + Prisma database
 
 
-const API_URL = "http://localhost:5000/api/admin-dashboard";
+const API_URL = "https://edugate-9yl5.onrender.com/api/admin-dashboard";
 
 
 

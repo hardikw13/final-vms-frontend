@@ -1,6 +1,6 @@
 // create-department.js
 
-const API_URL = "http://localhost:5000/api/departments";
+const API_URL = "https://edugate-9yl5.onrender.com/api/departments";
 
 function getToken() {
     return localStorage.getItem("token");

@@ -66,7 +66,7 @@ async function loadData() {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-        "http://localhost:5000/api/visitors/delivery",
+        "https://edugate-9yl5.onrender.com/api/visitors/delivery",
         {
             method: "POST",
             headers: {
@@ -97,7 +97,7 @@ async function loadData() {
 
 
         const response = await fetch(
-            "http://localhost:5000/api/registration/delivery-registration",
+            "https://edugate-9yl5.onrender.com/api/registration/delivery-registration",
             {
                 method: "POST",
                 headers: {

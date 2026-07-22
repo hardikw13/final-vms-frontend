@@ -1,6 +1,6 @@
 // manage-users.js
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://edugate-9yl5.onrender.com/api";
 
 let allUsers = [];
 
