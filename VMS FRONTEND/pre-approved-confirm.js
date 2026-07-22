@@ -219,12 +219,17 @@ function buildDetailsFromVisit(visit) {
 
     try {
 
-      const staffToken = localStorage.getItem("token");
+      const mode = new URLSearchParams(window.location.search).get("mode");
 
-      const headers = {};
-      if (staffToken) {
-        headers["Authorization"] = `Bearer ${staffToken}`;
-      }
+const headers = {};
+
+if (mode === "register") {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+}
 
       const res = await fetch(`http://localhost:5000/api/visits/self-checkin/${qrToken}`, {
         method: "PATCH",

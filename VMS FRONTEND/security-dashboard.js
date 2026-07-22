@@ -157,7 +157,7 @@
     }
   }
 
-  document.getElementById("scanQrBtn").addEventListener("click", () => VMS_SECURITY.goTo("pre-approved-scan.html"));
+  document.getElementById("scanQrBtn").addEventListener("click",() => VMS_SECURITY.goTo("pre-approved-scan.html?mode=register"));
   document.getElementById("registerBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-register.html"));
   document.getElementById("profileBtn").addEventListener("click", () => VMS_SECURITY.goTo("security-details.html"));
 
