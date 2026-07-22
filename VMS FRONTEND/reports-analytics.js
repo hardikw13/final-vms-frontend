@@ -2,7 +2,7 @@
 // Connected with Express backend + Supabase PostgreSQL
 // Uses JWT from login
 
-const API_BASE = "http://localhost:5000/api/analytics";
+const API_BASE = "https://edugate-9yl5.onrender.com/api/analytics";
 
 let currentPeriod = "weekly";
 

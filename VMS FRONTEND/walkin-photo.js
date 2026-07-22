@@ -600,7 +600,7 @@ function detectFaces() {
 
       // 4. Send the photo to our backend
       const response = await fetch(
-        "http://localhost:5000/api/registration/photo",
+        "https://edugate-9yl5.onrender.com/api/registration/photo",
         {
           method: "POST",
           body: formData
@@ -664,7 +664,7 @@ window.location.href = mode
 
 //         // 4. Send the photo to our backend
 //         const response = await fetch(
-//           "http://localhost:5000/api/registration/photo",
+//           "https://edugate-9yl5.onrender.com/api/registration/photo",
 //           {
 //             method: "POST",
 //             body: formData

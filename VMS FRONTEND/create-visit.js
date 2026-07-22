@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/api/visits/invite", {
+        const response = await fetch("https://edugate-9yl5.onrender.com/api/visits/invite", {
 
             method: "POST",
 

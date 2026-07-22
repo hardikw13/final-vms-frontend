@@ -44,7 +44,7 @@ async function loadData() {
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:5000/api/hosts/dashboard", {
+    const res = await fetch("https://edugate-9yl5.onrender.com/api/hosts/dashboard", {
 
       method: "GET",
 
@@ -260,7 +260,7 @@ function renderNotification(item) {
 
         try {
 
-            const res = await fetch(`http://localhost:5000/api/notifications/${notificationId}`, {
+            const res = await fetch(`https://edugate-9yl5.onrender.com/api/notifications/${notificationId}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -308,7 +308,7 @@ function renderNotification(item) {
 
     const response = await fetch(
 
-        `http://localhost:5000/api/hosts/visits/${selectedVisitId}/reassign`,
+        `https://edugate-9yl5.onrender.com/api/hosts/visits/${selectedVisitId}/reassign`,
 
         {
 
@@ -361,7 +361,7 @@ function renderNotification(item) {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/hosts/deliveries/${receiveBtn.dataset.visit}/receive`,
+          `https://edugate-9yl5.onrender.com/api/hosts/deliveries/${receiveBtn.dataset.visit}/receive`,
           {
             method: "PATCH",
             headers: {
@@ -397,7 +397,7 @@ function renderNotification(item) {
     hostSelect.innerHTML = `<option value="">Loading...</option>`;
 
     const res = await fetch(
-        "http://localhost:5000/api/hosts/department-hosts",
+        "https://edugate-9yl5.onrender.com/api/hosts/department-hosts",
         {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`

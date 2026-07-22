@@ -1,7 +1,7 @@
 // departments.js
 // Connected to backend API
 
-const API_URL = "http://localhost:5000/api/departments";
+const API_URL = "https://edugate-9yl5.onrender.com/api/departments";
 
 let allDepartments = [];
 

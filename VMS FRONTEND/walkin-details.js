@@ -211,7 +211,7 @@ const departmentSelect =
 try {
 
   const response = await fetch(
-    `http://localhost:5000/api/registration/departments?org=${organizationId}`
+    `https://edugate-9yl5.onrender.com/api/registration/departments?org=${organizationId}`
   );
 
   const result = await response.json();
@@ -270,7 +270,7 @@ departmentSelect.addEventListener(
     try {
 
       const response = await fetch(
-        `http://localhost:5000/api/registration/departments/${departmentId}/head`
+        `https://edugate-9yl5.onrender.com/api/registration/departments/${departmentId}/head`
       );
 
       const result =
@@ -345,7 +345,7 @@ if (mode === "register") {
 const token = localStorage.getItem("token");
 
 const response = await fetch(
-    "http://localhost:5000/api/visitors/walkin",
+    "https://edugate-9yl5.onrender.com/api/visitors/walkin",
     {
         method: "POST",
         headers: {
@@ -379,7 +379,7 @@ return;
       try {
 
   const response = await fetch(
-    "http://localhost:5000/api/registration/send-otp",
+    "https://edugate-9yl5.onrender.com/api/registration/send-otp",
     {
       method: "POST",
       headers: {

@@ -1,6 +1,6 @@
 // security-details.js
 (async function () {
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://edugate-9yl5.onrender.com/api";
   const token = localStorage.getItem("token");
 
   const authHeaders = {
