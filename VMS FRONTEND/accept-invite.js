@@ -1,4 +1,4 @@
-const API_URL = 'https://edugate-9yl5.onrender.com/api';
+const API_URL = "https://edugate-9yl5.onrender.com";
 
 const token = new URLSearchParams(window.location.search).get("token");
 

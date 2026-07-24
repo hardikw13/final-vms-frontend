@@ -108,7 +108,11 @@ function renderTodayCard(item, index) {
   el.dataset.visit = item.visitId;
   el.style.cursor = "pointer";
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
-  const statusLabel = item.status === "inside" ? "Inside" : "Checked Out";
+ const statusLabel = item.status === "inside"
+    ? "Inside"
+    : item.status === "checked-out"
+    ? "Checked Out"
+    : "Expected";
   el.innerHTML = `
   <div class="visitor-top">
 
@@ -187,7 +191,6 @@ function renderNotification(item) {
       <p>${item.text}</p>
       <span class="notif-time">${item.time}</span>
       <div class="notif-actions">
-        <button class="notif-see-details" data-visit="${item.visitId}">See Details</button>
         <button class="notif-mark-read" data-notification="${item.notificationId}">Mark as Read</button>
       </div>
     </div>
