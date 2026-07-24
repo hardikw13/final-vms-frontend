@@ -220,6 +220,15 @@ function renderNotification(item) {
   const notificationsList = document.getElementById("notificationsList");
   data.notifications.forEach((item) => notificationsList.appendChild(renderNotification(item)));
 
+  // this added
+  const notificationDot = document.getElementById("notificationDot");
+
+if (data.notifications && data.notifications.length > 0) {
+    notificationDot.classList.add("show");
+} else {
+    notificationDot.classList.remove("show");
+}
+
   // ---- Tab switching ----
   document.getElementById("tabs").addEventListener("click", (e) => {
     const btn = e.target.closest(".tab-btn");
@@ -281,6 +290,10 @@ function renderNotification(item) {
 
         const item = readBtn.closest(".notification-item");
         item.remove();
+        // this added
+        if (notificationsList.children.length === 0) {
+    notificationDot.classList.remove("show");
+}
 
     }
 

@@ -160,6 +160,29 @@ svg { display: block; }
   background: var(--blue-bg);
   color: var(--brand-blue);
 }
+/* ===== Notification Dot ===== */
+.notification-tab{
+    position: relative;
+}
+
+.notification-dot{
+    position: absolute;
+    top: 8px;
+    right: 18px;
+
+    width: 10px;
+    height: 10px;
+
+    background: #ef4444;
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    display: none;
+}
+
+.notification-dot.show{
+    display: block;
+}
 
 .tab-count {
   font-size: 10px;
