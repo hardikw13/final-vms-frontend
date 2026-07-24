@@ -315,12 +315,12 @@ href:"reports-analytics.html"
 },
 
 
-{
-label:"Notifications",
-sub:"Alerts",
-icon:"bell",
-href:"#"
-},
+// {
+// label:"Notifications",
+// sub:"Alerts",
+// icon:"bell",
+// href:"#"
+// },
 
 
 {
@@ -328,15 +328,15 @@ label:"Departments",
 sub:"Settings",
 icon:"departments",
 href:"departments.html"
-},
-
-
-{
-label:"Entry Logs",
-sub:"Audit trail",
-icon:"logs",
-href:"#"
 }
+
+
+// {
+// label:"Entry Logs",
+// sub:"Audit trail",
+// icon:"logs",
+// href:"#"
+// }
 
 ];
 
