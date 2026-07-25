@@ -132,7 +132,7 @@ function renderTodayCard(item, index) {
 
       </div>
 
-      <p class="visitor-meta">${item.category}</p>
+      <p class="visitor-meta visit-type-badge ${item.categoryType || ""}">${item.category}</p>
 
      ${
         dashboardData?.permissions?.canReassign && item.status !== "checked-out"
