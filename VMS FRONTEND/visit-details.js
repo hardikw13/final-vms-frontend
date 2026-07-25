@@ -73,7 +73,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.getElementById("detailAvatar").textContent = initials;
         document.getElementById("detailName").textContent = visitor.full_name;
-        document.getElementById("detailPurpose").textContent = VISIT_TYPE_LABELS[visit.visit_type] || "—";
+       const purposeEl = document.getElementById("detailPurpose");
+        purposeEl.textContent = VISIT_TYPE_LABELS[visit.visit_type] || "—";
+        purposeEl.className = `detail-sub visit-type-badge ${visit.visit_type || ""}`;
         document.getElementById("detailPurposeGrid").textContent = visit.purpose || "—";
         document.getElementById("detailEmail").textContent = visitor.email || "—";
         document.getElementById("detailPhone").textContent = visitor.phone || "—";

@@ -102,3 +102,28 @@ svg { display: block; }
 .detail-item { display: flex; flex-direction: column; gap: 4px; }
 .detail-item .label { font-size: 11px; color: var(--muted); }
 .detail-item .value { font-size: 13.5px; font-weight: 700; }
+.detail-sub.visit-type-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.detail-sub.visit-type-badge.pre_approved {
+  background: #e6ecfd;
+  color: var(--brand-blue-dark);
+}
+
+.detail-sub.visit-type-badge.walk_in {
+  background: #fdf1dd;
+  color: #b9790f;
+}
+
+.detail-sub.visit-type-badge.delivery {
+  background: #e3f6ea;
+  color: #1c8a4c;
+}
