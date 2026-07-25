@@ -8,6 +8,12 @@ const STATUS_LABELS = {
   checked_out: "Checked Out"
 };
 
+const VISIT_TYPE_LABELS = {
+  pre_approved: "Pre-Approved",
+  walk_in: "Walk-in",
+  delivery: "Delivery"
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     const loadingState = document.getElementById("loadingState");
@@ -68,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("detailAvatar").textContent = initials;
         document.getElementById("detailName").textContent = visitor.full_name;
         document.getElementById("detailPurpose").textContent = visit.purpose || "—";
+        document.getElementById("detailPurposeGrid").textContent = visit.purpose || "—";
         document.getElementById("detailEmail").textContent = visitor.email || "—";
         document.getElementById("detailPhone").textContent = visitor.phone || "—";
         document.getElementById("detailOrg").textContent = visitor.organization || "—";
